@@ -3,7 +3,7 @@
 
     <groupId>com.github.a-langer</groupId>
     <artifactId>shiro-ext</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.1-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Extension for Apache Shiro</description>
     <url>https://github.com/a-langer/shiro-ext</url>
