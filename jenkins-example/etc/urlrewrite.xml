@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE urlrewrite
+    PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN"
+    "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+
+<urlrewrite>
+
+    <!--
+        See https://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html
+    -->
+
+    <rule>
+        <note>
+            Shiro: Replace /loginEntry to /login
+        </note>
+        <from>^/loginEntry$</from>
+        <to encode="true" last="true">/login</to>
+    </rule>
+    <rule>
+        <note>
+            Shiro: Replace /j_security_check to /login only for GET
+        </note>
+        <condition type="method" operator="equal">GET</condition>
+        <from>^/j_security_check$</from>
+        <to encode="true" last="false">/login</to>
+    </rule>
+    
+    <rule>
+        <note>
+            Shiro: Pass HTTP request through security filter http://shiro.apache.org/web.html#Web-CustomConfigurationLocations
+        </note>
+        <from>.*</from>
+        <run class="org.apache.shiro.web.servlet.IniShiroFilter" method="doFilter(ServletRequest, ServletResponse, FilterChain)">
+            <init-param>
+                <param-name>config</param-name>
+                <param-value>
+                    [main]
+                    iniRealm.authorizationCachingEnabled = true
+                    
+                    adRealm = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryRealm
+                    adRealm.url = ldaps://corp.company.com:636
+                    adRealm.systemUsername = username
+                    adRealm.systemPassword = password
+                    adRealm.principalSuffix = @CORP.COMPANY.COM
+                    adRealm.authorizationCachingEnabled = true
+                    adRealm.searchBase = DC=CORP,DC=COMPANY,DC=COM
+                    adRealm.searchFilter = (&amp;(objectCategory=person)(objectClass=user)(sAMAccountName={0}))
+                    adRealm.roleBase = OU=Departments,OU=HUB,DC=corp,DC=company,DC=com
+                    adRealm.roleSearch = (&amp;(objectClass=group)(member={0}))
+                    adRealm.roleNested = true
+                    #adRealm.named = true
+                    adRealm.commonRole = All_Corp_Users
+                    
+                    #sessionManager = org.apache.shiro.web.session.mgt.DefaultWebSessionManager
+                    #sessionManager.sessionIdUrlRewritingEnabled = false
+                    #sessionManager.globalSessionTimeout = 1800000
+                    #sessionManager.sessionIdCookie.name = JENKINSID
+                    sessionManager = org.apache.shiro.web.session.mgt.ServletContainerSessionManager
+                    
+                    authcStrategy   = org.apache.shiro.authc.pam.FirstSuccessfulStrategy
+                    authcStrategy.stopAfterFirstSuccess = true
+                    #authcListener   = com.github.alanger.shiroext.authc.AttributeAuthenticationListener
+                    cacheManager    = org.apache.shiro.cache.MemoryConstrainedCacheManager
+                    rememberMe      = org.apache.shiro.web.mgt.CookieRememberMeManager
+                    realmAuthorizer = com.github.alanger.shiroext.authz.AssignedRealmAuthorizer
+                    
+                    securityManager = org.apache.shiro.web.mgt.DefaultWebSecurityManager
+                    securityManager.sessionManager = $sessionManager
+                    securityManager.authenticator.authenticationStrategy = $authcStrategy
+                    #securityManager.authenticator.authenticationListeners = $authcListener
+                    securityManager.cacheManager = $cacheManager
+                    securityManager.rememberMeManager = $rememberMe
+                    securityManager.authorizer = $realmAuthorizer
+                    #securityManager.rememberMeManager.cipherKey = kPH+bIxk5D2deZiIxcaaaA==
+                    securityManager.realms = $iniRealm, $adRealm
+                    
+                    shiro.unauthorizedUrl = /loginError
+                    shiro.loginUrl        = /j_security_check
+                    
+                    [users]
+                    admin = admin,admin,AppAdmin
+                    user = user,users,AppUser
+                    
+                    [roles]
+                    admin = *
+                    AppAdmin = *
+                    users = example:*
+                    
+                    [filters]
+                    authc      = com.github.alanger.shiroext.web.FormAuthcFilter
+                    authc.usernameParam       = j_username
+                    authc.passwordParam       = j_password
+                    authc.loginUrl            = /j_security_check
+                    authc.successUrl          = /
+                    authc.failureKeyAttribute = shiroLoginFailure
+                    authc.rememberMeParam     = remember_me
+                    basic      = com.github.alanger.shiroext.web.BasicAuthcFilter
+                    logout     = com.github.alanger.shiroext.web.LogoutAuthcFilter
+                    roles      = com.github.alanger.shiroext.web.RolesAuthzFilter
+                    role       = com.github.alanger.shiroext.web.RoleAuthzFilter
+                    perms      = com.github.alanger.shiroext.web.PermissionsAuthzFilter
+                    perm       = com.github.alanger.shiroext.web.PermissionAuthzFilter
+                    
+                    [urls]
+                    # Public resources Jenkins
+                    /rewrite-after  = noSessionCreation, anon
+                    /rewrite-before = noSessionCreation, anon
+                    /assets/**            = noSessionCreation, anon
+                    /avatar-cache/**      = noSessionCreation, anon
+                    /bitbucket-scmsource-hook/**  = noSessionCreation, anon
+                    /blue/**              = noSessionCreation, anon
+                    /cli/**               = noSessionCreation, anon
+                    /custom-avatar-cache/** = noSessionCreation, anon
+                    /git/**               = noSessionCreation, anon
+                    /github-webhook/**    = noSessionCreation, anon
+                    /gitlabLogout/**      = noSessionCreation, anon
+                    /instance-identity/** = noSessionCreation, anon
+                    /jnlpJars/**          = noSessionCreation, anon
+                    /jwt-auth/**          = noSessionCreation, anon
+                    /mercurial/**         = noSessionCreation, anon
+                    /static-files/**      = noSessionCreation, anon
+                    /static/**            = noSessionCreation, anon
+                    /subversion/**        = noSessionCreation, anon
+                    /whoAmI/**            = noSessionCreation, anon
+                    /wsagents/**          = noSessionCreation, anon
+                    /userContent/**       = noSessionCreation, anon
+                    /plugin/simple-theme-plugin/** = noSessionCreation, anon
+                    /adjuncts/**         = noSessionCreation, anon
+                    /favicon.ico         = noSessionCreation, anon
+                    /computer/**/slave-agent.jnlp = anon
+                    
+                    # Login pages
+                    /tcpSlaveAgentListener = anon
+                    /login                 = anon
+                    /loginEntry            = authc
+                    /loginError            = noSessionCreation, anon
+                    /logout_shiro          = logout
+                    /logout                = noSessionCreation, anon
+                    /j_security_check      = authc
+                    
+                    # Protected resources Jenkins              
+                    /user/                    = authc, roles[admin]
+                    /computer/**              = authc, roles[admin]
+                    /label/**                 = authc, roles[admin]
+                    /me/my-views/view/all/**  = authc, roles[admin]
+                    /ajaxExecutors/**         = authc, roles[admin]
+                    /rewrite-status/**        = authc, roles[admin]
+                    /asynchPeople/**          = authc, roles[admin]
+                    /manage/**                = authc, roles[admin]
+                    /configure/**             = authc, roles[admin]
+                    /configureTools/**        = authc, roles[admin]
+                    /pluginManager/**         = authc, roles[admin]
+                    /configureClouds/**       = authc, roles[admin]
+                    /configureSecurity/**     = authc, roles[admin]
+                    /credentials/**           = authc, roles[admin]
+                    /configureCredentials/**  = authc, roles[admin]
+                    /scriptApproval/**        = authc, roles[admin]
+                    /systemInfo/**            = authc, roles[admin]
+                    /log/**                   = authc, roles[admin]
+                    /load-statistics/**       = authc, roles[admin]
+                    /about/**                 = authc, roles[admin]
+                    /administrativeMonitor/** = authc, roles[admin]
+                    /script/**                = authc, roles[admin]
+                    /quietDown/**             = authc, roles[admin]
+                    /role-strategy/**         = authc, roles[admin]
+                    /scriptler/**             = authc, roles[admin]
+                    /scriptler.git/**         = authc, roles[admin]
+                    /projectRelationship/**   = authc, roles[admin]
+                    /** = authc
+                </param-value>
+            </init-param>
+        </run>
+    </rule>
+
+    <rule>
+        <note>
+            Shiro: redirect from /j_security_check to /loginError only for POST when not authorize
+            otherwise Jenkins returns "403 No valid crumb was included in the request"
+        </note>
+        <condition type="method" operator="equal">POST</condition>
+        <condition type="attribute" name="shiroLoginFailure" operator="notequal">null</condition>   
+        <from>^/j_security_check$</from>
+        <to last="true" type="temporary-redirect">loginError</to>
+    </rule>
+    
+</urlrewrite>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!DOCTYPE urlrewrite
+    PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN"
+    "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+
+<urlrewrite>
+
+    <!--
+        See https://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html
+    -->
+
+    <rule>
+        <note>
+            Fix: Execute Jenkins login handlers (save roles to user profile).
+            If it is javax.servlet.Filter, then the rules after it are not executed.
+        </note>
+        <condition type="session-isnew" operator="equal" next="or">true</condition>
+        <condition type="session-attribute" name="sessionCreated" operator="equal">true</condition>
+        <from>.*</from>
+        <run class="com.github.alanger.shiroext.web.ScriptProcessedServlet" method="service">
+            <init-param>
+                <param-name>invoke-script-text</param-name>
+                <param-value>
+                var session = request.getSession(false);
+                var username = request.getRemoteUser();
+                if (session != null &amp;&amp; username != null) {
+                    var SecurityListener = Java.type('jenkins.security.SecurityListener');
+                    SecurityListener.fireLoggedIn(username);
+                    session.removeAttribute("sessionCreated");
+                    // logger.severe("# isNew: " + session.isNew() + ", user: " + username);
+                }
+                </param-value>
+            </init-param>
+        </run>
+    </rule>
+
+    <rule>
+        <note>
+            Fix: Compatibility mode for IE (IE=edge or IE=11)
+        </note>
+        <from>.*</from>
+        <set type="response-header" name="X-UA-Compatible">IE=edge</set>
+    </rule>
+    
+    <rule>
+        <note>
+            Fix: Cyrillic encoding for files .pck, .log, .method
+        </note>
+        <from>.*/artifact/.*\.log.*|.*/artifact/.*\.pck.*|.*/artifact/.*\.method.*</from>
+        <set type="content-type">text/plain;charset=windows-1251</set>
+        <set type="charset">windows-1251</set>
+    </rule>
+    
+    <rule>
+        <note>
+            Fix: Replace broken links in "Full Stage View"
+              /job/{job-name}/workflow-stage/{job-id} to /job/{job-name}/{job-id}
+        </note>
+        <from>/job/([^/]+)/workflow-stage/([^/]+)</from>
+        <to encode="true" last="true">/job/$1/$2</to>
+    </rule>
+
+    <rule>
+        <note>
+            Access: Ban on /asynchPeople for regular users
+        </note>
+        <condition type="user-in-role" operator="notequal">admin</condition>
+        <from>^(.*)/asynchPeople/$|^(.*)/asynchPeople$</from>
+        <to last="true">/oops</to>
+    </rule> 
+
+    <rule>
+        <note>
+            Access: Ban on "restart from stage" for regular users
+            POST: /job/{job-name}/{job-id}/restart/restart
+        </note>
+        <condition type="user-in-role" operator="notequal">admin</condition>
+        <from>^/job/([^/]+)/([^/]+)/restart.*</from>
+        <to last="true">/oops</to>
+    </rule> 
+
+    <rule>
+        <note>
+            Access: Replace /ajaxExecutors to /me/my-views/ajaxExecutors for administrators
+        </note>
+        <condition type="user-in-role" operator="equal">admin</condition>
+        <from>^/ajaxExecutors$</from>
+        <to last="true">/me/my-views/ajaxExecutors</to>
+    </rule> 
+
+    <rule>
+        <note>
+            Access: Deny "ajaxExecutors" for regular users
+            GET: /me/my-views/ajaxExecutors or /user/{username}/ajaxExecutors
+        </note>
+        <condition type="user-in-role" operator="notequal">admin</condition>
+        <from>^.*/ajaxExecutors$</from>
+        <set type="status">204</set>
+        <to last="true">null</to>
+    </rule> 
+
+    <rule>
+        <note>
+            Access: Replace /user/{username}/{path} to /me/{path} for regular users
+        </note>
+        <condition type="user-in-role" operator="notequal">admin</condition>
+        <from>^/user/([^/]+)/?(.*)</from>
+        <to encode="true" last="true">/me/$2</to>
+    </rule> 
+
+    <rule>
+        <note>
+            Access: Hide some menu items only for regular users
+        </note>
+        <condition type="user-in-role" operator="equal">admin</condition>
+        <from>^/userContent/access/hide_link_sidebar.css$</from>
+        <set type="status">204</set>
+        <to last="true">null</to>
+    </rule>
+    
+</urlrewrite>
