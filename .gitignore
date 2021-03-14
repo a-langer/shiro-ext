@@ -1,0 +1,13 @@
+*.iml
+.idea
+.settings
+.classpath
+.project
+.factorypath
+target
+nbproject
+old
+old/*
+*.jks
+*\.log
+* - Copy*
