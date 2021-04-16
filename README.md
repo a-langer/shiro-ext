@@ -9,14 +9,14 @@ This project implement extension for security framework [Apache Shiro][1].
 
 ## Supported features
 
-* Additional Shiro [filters][2] classes:  
+* Additional Shiro [filters][2] classes.  
     [RolesAuthzFilter](src/main/java/com/github/alanger/shiroext/web/RolesAuthzFilter.java) - checks the need for all the listed roles:  
 
     ```ini
     [filters]
     roles = com.github.alanger.shiroext.web.RolesAuthzFilter
     [urls]
-    # require user must be member all roles
+    # Require user must be member all roles
     /protected/** = roles[admin,user,manager]
     ```
 
@@ -26,7 +26,7 @@ This project implement extension for security framework [Apache Shiro][1].
     [filters]
     role = com.github.alanger.shiroext.web.RoleAuthzFilter
     [urls]
-    # require user must be member any one role
+    # Require user must be member any one role
     /protected/** = role[admin,user,manager]
     ```
 
@@ -36,7 +36,7 @@ This project implement extension for security framework [Apache Shiro][1].
     [filters]
     perms = com.github.alanger.shiroext.web.PermissionsAuthzFilter
     [urls]
-    # require user must be have all permissions
+    # Require user must be have all permissions
     /protected/** = perms[read,write,create]
     ```
 
@@ -46,7 +46,7 @@ This project implement extension for security framework [Apache Shiro][1].
     [filters]
     perm = com.github.alanger.shiroext.web.PermissionAuthzFilter
     [urls]
-    # require user must be have any one permission
+    # Require user must be have any one permission
     /protected/** = perm[read,write,create]
     ```
 
@@ -104,7 +104,7 @@ This project implement extension for security framework [Apache Shiro][1].
     ```ini
     # "CORP\username" or just "username" will be the correct
     CORP = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryRealm
-    # if uncomment this, then will be correct only "CORP\username"
+    # If uncomment this, then will be correct only "CORP\username"
     #CORP.named = true
     ```
 
@@ -158,7 +158,7 @@ This project implement extension for security framework [Apache Shiro][1].
     securityManager.authorizer = $realmAuthorizer
     ```
 
-* Simple servlet and filters (configured in descriptor `web.xml`):  
+* Simple servlet and filters (configured in descriptor `web.xml`).  
     [ScriptProcessedServlet](src/main/java/com/github/alanger/shiroext/servlets/ScriptProcessedServlet.java) - delegate processing HTTP request and response to specified script (by default JavaScript through [Nashorn][7] engine):  
 
     ```xml
