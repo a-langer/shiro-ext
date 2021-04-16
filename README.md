@@ -99,13 +99,27 @@ This project implement extension for security framework [Apache Shiro][1].
 
 * [ActiveDirectoryRealm](src/main/java/com/github/alanger/shiroext/realm/activedirectory/ActiveDirectoryRealm.java) - security realm for Active Directory (LDAP) with additional options.  
 
+    Common or specified suffix of principal for system username:
+
+    ```ini
+    CORP = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryRealm
+    CORP.url = ldaps://corp.company.com:636
+    # Common suffix principal for all users
+    CORP.principalSuffix = @CORP.COMPANY.COM
+    # System username will be used common suffix principal
+    CORP.systemUsername = username
+    # System username will be used specified suffix principal
+    # CORP.systemUsername = username@SPECIFIED.SUFFIX.COM
+    CORP.systemPassword = password
+    ```
+
     Support of domain name:
 
     ```ini
     # "CORP\username" or just "username" will be the correct
     CORP = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryRealm
     # If uncomment this, then will be correct only "CORP\username"
-    #CORP.named = true
+    # CORP.named = true
     ```
 
     Load of roles nested if the following is configured:

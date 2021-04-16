@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
+import org.apache.shiro.realm.ldap.LdapContextFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import org.zapodot.junit.ldap.EmbeddedLdapRuleBuilder;
 
 /**
  * mvn test -DargLine="-Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword" -Dgroup=MyGroup
- * -Dsurefire.skipAfterFailureCount=1
+ * -DgroupNested=MyNestedGroup -Dsurefire.skipAfterFailureCount=1
  * https://github.com/apache/shiro/blob/master/core/src/test/groovy/org/apache/shiro/realm/AuthenticatingRealmIntegrationTest.groovy
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -91,30 +92,34 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
     @Test
     public void test00_LdapContextFactory() throws Throwable {
         if (URL != null && SYSTEM_USERNAME != null && SYSTEM_PASSWORD != null) {
+            LdapContextFactory lcf = getLdapContextFactory();
             setRoleNested(true);
             setCommonRole(COMMON_ROLE);
-            // contextFactory = org.apache.shiro.realm.ldap.JndiLdapContextFactory
+
+            // # AD ldap context
+            // contextFactory = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryLdapContextFactory
             // contextFactory.url = ldaps://ad.domain.com:636
-            // contextFactory.systemUsername = shiro@domain.com
+            // contextFactory.principalSuffix = @DOMAIN.COM
+            // # contextFactory.systemUsername = shiro@SPECIFIED.SUFFIX.COM
+            // contextFactory.systemUsername = shiro
             // contextFactory.systemPassword = password
-            JndiLdapContextFactory contextFactory = new JndiLdapContextFactory();
+            ActiveDirectoryLdapContextFactory contextFactory = new ActiveDirectoryLdapContextFactory();
+            contextFactory.setPrincipalSuffix(getPrincipalSuffix());
             contextFactory.setUrl(URL);
             contextFactory.setSystemUsername(trimDomain(SYSTEM_USERNAME + getPrincipalSuffix()));
             contextFactory.setSystemPassword(SYSTEM_PASSWORD);
-            contextFactory.getSystemLdapContext();
-            contextFactory.getLdapContext((Object) (trimDomain(USERNAME + getPrincipalSuffix())), (Object) PASSWORD);
-
+            contextFactory.getLdapContext((Object) (trimDomain(USERNAME)), (Object) PASSWORD);
             setLdapContextFactory(contextFactory);
-
-            AuthenticationToken token = new UsernamePasswordToken(USERNAME + getPrincipalSuffix(), PASSWORD);
-            doGetAuthenticationInfo(token);
-
-            Set<String> roles = getRoleNamesForUser(USERNAME, getLdapContextFactory().getSystemLdapContext());
+            assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
+            Set<String> roles = getRoleNamesForUser(USERNAME, contextFactory.getSystemLdapContext());
             assertFalse(roles.isEmpty());
             assertTrue(roles.contains(COMMON_ROLE));
             assertTrue(GROUP != null ? roles.contains(GROUP) : true);
             assertTrue(GROUP_NESTED != null ? roles.contains(GROUP_NESTED) : true);
+
+            setRoleNested(false);
             setCommonRole(null);
+            setLdapContextFactory(lcf);
         }
     }
 
@@ -166,7 +171,7 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         roles = new LinkedHashSet<>(r);
         setRoleWhiteList(GROUP + "|other_role1");
         filterRoleBlackOrWhite(roles);
-        assertFalse(roles.isEmpty());
+        assertFalse(GROUP != null ? roles.isEmpty() : false);
         assertFalse(roles.contains(COMMON_ROLE));
         assertTrue(GROUP != null ? roles.contains(GROUP) : true);
 

@@ -321,9 +321,13 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             String[] names = username.split("\\\\");
             username = names.length == 2 ? names[1] : null;
             domain = names.length == 2 ? names[0] : null;
-            if (log.isTraceEnabled())
-                log.trace("withOutDomain username: {}, domain: {}: ", username, domain);
+        } else if (username != null && username.indexOf("@") != -1) {
+            String[] names = username.split("@");
+            username = names.length == 2 ? names[0] : null;
+            domain = names.length == 2 ? names[1] : null;
         }
+        if (log.isTraceEnabled())
+            log.trace("withOutDomain username: {}, domain: {}: ", username, domain);
 
         // Domain name maybe null or correct value
         if (!getNamed() && (domain != null && !domain.equalsIgnoreCase(getName()))) {

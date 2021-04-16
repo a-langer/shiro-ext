@@ -6,7 +6,7 @@
     <version>0.0.2-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Extension for Apache Shiro</description>
-    <url>https://github.com/a-langer/${project.artifactId}</url>
+    <url>https://github.com/a-langer/shiro-ext</url>
 
     <licenses>
         <license>
@@ -26,9 +26,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git@github.com:a-langer/${project.artifactId}.git</connection>
-        <developerConnection>git@github.com:a-langer/${project.artifactId}.git</developerConnection>
-        <url>https://github.com/a-langer/${project.artifactId}</url>
+        <connection>scm:git@github.com:a-langer/shiro-ext.git</connection>
+        <developerConnection>git@github.com:a-langer/shiro-ext.git</developerConnection>
+        <url>https://github.com/a-langer/shiro-ext</url>
     </scm>
 
     <distributionManagement>
@@ -45,19 +45,7 @@
     <repositories>
         <repository>
             <id>central</id>
-            <url>http://repo1.maven.org/maven2</url>
-        </repository>
-        <repository>
-            <id>jenkins-ci</id>
-            <url>https://repo.jenkins-ci.org/releases/</url>
-        </repository>
-        <repository>
-            <id>jenkins-ci-2</id>
-            <url>https://repo.jenkins-ci.org/public/</url>
-        </repository>
-        <repository>
-            <id>jenkins-ci-3</id>
-            <url>https://repo.jenkins-ci.org/incrementals/</url>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
 
