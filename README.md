@@ -1,16 +1,16 @@
+# Extension for Apache Shiro
+
 [![Build Status](https://travis-ci.org/a-langer/shiro-ext.svg?branch=master)](https://travis-ci.org/a-langer/shiro-ext)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/a-langer/shiro-ext/blob/master/LICENSE)
 [![Maven JitPack](https://img.shields.io/github/tag/a-langer/shiro-ext.svg?label=maven)](https://jitpack.io/#a-langer/shiro-ext)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.a-langer/shiro-ext/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.a-langer/shiro-ext)
-
-# Extension for Apache Shiro
 
 This project implement extension for security framework [Apache Shiro][1].
 
 ## Supported features
 
 * Additional Shiro [filters][2] classes:  
-    [com.github.alanger.shiroext.web.RolesAuthzFilter](src/main/java/com/github/alanger/shiroext/web/RolesAuthzFilter.java) - checks the need for all the listed roles:  
+    [RolesAuthzFilter](src/main/java/com/github/alanger/shiroext/web/RolesAuthzFilter.java) - checks the need for all the listed roles:  
 
     ```ini
     [filters]
@@ -20,7 +20,7 @@ This project implement extension for security framework [Apache Shiro][1].
     /protected/** = roles[admin,user,manager]
     ```
 
-    [com.github.alanger.shiroext.web.RoleAuthzFilter](src/main/java/com/github/alanger/shiroext/web/RoleAuthzFilter.java) - checks the need for any one the listed roles:  
+    [RoleAuthzFilter](src/main/java/com/github/alanger/shiroext/web/RoleAuthzFilter.java) - checks the need for any one the listed roles:  
 
     ```ini
     [filters]
@@ -30,7 +30,7 @@ This project implement extension for security framework [Apache Shiro][1].
     /protected/** = role[admin,user,manager]
     ```
 
-    [com.github.alanger.shiroext.web.PermissionsAuthzFilter](src/main/java/com/github/alanger/shiroext/web/PermissionsAuthzFilter.java) - checks the need for all the listed permissions:  
+    [PermissionsAuthzFilter](src/main/java/com/github/alanger/shiroext/web/PermissionsAuthzFilter.java) - checks the need for all the listed permissions:  
 
     ```ini
     [filters]
@@ -40,7 +40,7 @@ This project implement extension for security framework [Apache Shiro][1].
     /protected/** = perms[read,write,create]
     ```
 
-    [com.github.alanger.shiroext.web.PermissionAuthzFilter](src/main/java/com/github/alanger/shiroext/web/PermissionAuthzFilter.java) - checks the need for any one the listed permissions:  
+    [PermissionAuthzFilter](src/main/java/com/github/alanger/shiroext/web/PermissionAuthzFilter.java) - checks the need for any one the listed permissions:  
 
     ```ini
     [filters]
@@ -50,7 +50,7 @@ This project implement extension for security framework [Apache Shiro][1].
     /protected/** = perm[read,write,create]
     ```
 
-    [com.github.alanger.shiroext.web.FormAuthcFilter](src/main/java/com/github/alanger/shiroext/web/FormAuthcFilter.java) - for authentication through form:  
+    [FormAuthcFilter](src/main/java/com/github/alanger/shiroext/web/FormAuthcFilter.java) - for authentication through form:  
 
     ```ini
     [filters]
@@ -60,7 +60,7 @@ This project implement extension for security framework [Apache Shiro][1].
     /** = authc
     ```
 
-    [com.github.alanger.shiroext.web.BasicAuthFilter](src/main/java/com/github/alanger/shiroext/web/BasicAuthcFilter.java) - for basic authentication:  
+    [BasicAuthFilter](src/main/java/com/github/alanger/shiroext/web/BasicAuthcFilter.java) - for basic authentication:  
 
     ```ini
     [filters]
@@ -69,7 +69,7 @@ This project implement extension for security framework [Apache Shiro][1].
     /** = basic
     ```
 
-    [com.github.alanger.shiroext.web.LogoutAuthcFilter](src/main/java/com/github/alanger/shiroext/web/LogoutAuthcFilter.java) - for destroy user session:  
+    [LogoutAuthcFilter](src/main/java/com/github/alanger/shiroext/web/LogoutAuthcFilter.java) - for destroy user session:  
 
     ```ini
     [filters]
@@ -97,7 +97,9 @@ This project implement extension for security framework [Apache Shiro][1].
         X-Requested-With: XMLHttpRequest
         ```
 
-* [com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryRealm](src/main/java/com/github/alanger/shiroext/realm/activedirectory/ActiveDirectoryRealm.java) - realm for Active Directory (LDAP) with support of domain name:  
+* [ActiveDirectoryRealm](src/main/java/com/github/alanger/shiroext/realm/activedirectory/ActiveDirectoryRealm.java) - security realm for Active Directory (LDAP) with additional options.  
+
+    Support of domain name:
 
     ```ini
     # "CORP\username" or just "username" will be the correct
@@ -106,7 +108,7 @@ This project implement extension for security framework [Apache Shiro][1].
     #CORP.named = true
     ```
 
-    and load of roles nested if the following is configured:
+    Load of roles nested if the following is configured:
 
     ```ini
     CORP.roleBase = OU=Departments,OU=HUB,DC=corp,DC=company,DC=com
@@ -114,13 +116,31 @@ This project implement extension for security framework [Apache Shiro][1].
     CORP.roleNested = true
     ```
 
-    or can optionally add a common role:
+    Can optionally add a common role:
 
     ```ini
     CORP.commonRole = All_Corp_Users
     ```
 
-* [com.github.alanger.shiroext.authc.AttributeAuthenticationListener](src/main/java/com/github/alanger/shiroext/authc/AttributeAuthenticationListener.java) - if realm implements [AttributeProvider](src/main/java/com/github/alanger/shiroext/realm/AttributeProvider.java), then listener saving user attributes to `org.apache.shiro.session.Session`:  
+    Black and white list of users:
+
+    ```ini
+    # Only matching users can be authenticated
+    CORP.userWhiteList = user1|user2|user3
+    # Only not matching users can be authenticated
+    CORP.userBlackList = baduser1|baduser2|baduser3
+    ```
+
+    Black and white list of roles:
+
+    ```ini
+    # Only matching roles can be authorized
+    CORP.roleWhiteList = role1|role2|role3
+    # Only not matching roles can be authorized
+    CORP.roleBlackList = badrole1|badrole2|badrole3
+    ```
+
+* [AttributeAuthenticationListener](src/main/java/com/github/alanger/shiroext/authc/AttributeAuthenticationListener.java) - if realm implements [AttributeProvider](src/main/java/com/github/alanger/shiroext/realm/AttributeProvider.java), then listener saving user attributes to `org.apache.shiro.session.Session`:  
 
     ```ini
     authcListener = com.github.alanger.shiroext.authc.AttributeAuthenticationListener
@@ -128,7 +148,7 @@ This project implement extension for security framework [Apache Shiro][1].
     securityManager.authenticator.authenticationListeners = $authcListener
     ```
 
-* [com.github.alanger.shiroext.authz.AssignedRealmAuthorizer](src/main/java/com/github/alanger/shiroext/authz/AssignedRealmAuthorizer.java) - allows only roles to be applied to user from the  realm in which the authorization takes place, is used in conjunction with `org.apache.shiro.authc.pam.FirstSuccessfulStrategy`:
+* [AssignedRealmAuthorizer](src/main/java/com/github/alanger/shiroext/authz/AssignedRealmAuthorizer.java) - allows only roles to be applied to user from the  realm in which the authorization takes place, is used in conjunction with `org.apache.shiro.authc.pam.FirstSuccessfulStrategy`:
 
     ```ini
     realmAuthorizer = com.github.alanger.shiroext.authz.AssignedRealmAuthorizer
@@ -139,56 +159,82 @@ This project implement extension for security framework [Apache Shiro][1].
     ```
 
 * Simple servlet and filters (configured in descriptor `web.xml`):  
-    [com.github.alanger.shiroext.web.ScriptProcessedServlet](src/main/java/com/github/alanger/shiroext/web/ScriptProcessedServlet.java) - delegate processing HTTP request and response to specified script (by default JavaScript through [Nashorn][7] engine):  
+    [ScriptProcessedServlet](src/main/java/com/github/alanger/shiroext/servlets/ScriptProcessedServlet.java) - delegate processing HTTP request and response to specified script (by default JavaScript through [Nashorn][7] engine):  
 
     ```xml
     <servlet>
-        <servlet-name>script-servlet</servlet-name>
-        <servlet-class>com.github.alanger.shiroext.web.ScriptProcessedServlet</servlet-class>
+        <servlet-name>script-processed-servlet</servlet-name>
+        <servlet-class>com.github.alanger.shiroext.servlets.ScriptProcessedServlet</servlet-class>
         <init-param>
             <param-name>invoke-script-text</param-name>
             <param-value>response.getOutputStream().print("text1")</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>script-servlet</servlet-name>
+        <servlet-name>script-processed-servlet</servlet-name>
         <url-pattern>/text1/*</url-pattern>
     </servlet-mapping>
     ```
 
-    [com.github.alanger.shiroext.web.ScriptProcessedFilter](src/main/java/com/github/alanger/shiroext/web/ScriptProcessedFilter.java) - similarly `ScriptProcessedServlet`, but implemented as filter:  
+    [ScriptProcessedFilter](src/main/java/com/github/alanger/shiroext/servlets/ScriptProcessedFilter.java) - similarly `ScriptProcessedServlet`, but implemented as filter:  
 
     ```xml
     <filter>
-        <filter-name>script-filter</filter-name>
-        <filter-class>com.github.alanger.shiroext.web.ScriptProcessedFilter</filter-class>
+        <filter-name>script-processed-filter</filter-name>
+        <filter-class>com.github.alanger.shiroext.servlets.ScriptProcessedFilter</filter-class>
         <init-param>
             <param-name>invoke-script-text</param-name>
             <param-value>response.addHeader("script-filter", "true")</param-value>
         </init-param>
     </filter>
     <filter-mapping>
-        <filter-name>script-filter</filter-name>
+        <filter-name>script-processed-filter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     ```
 
-    [com.github.alanger.shiroext.web.ResponseComittedFilter](src/main/java/com/github/alanger/shiroext/web/ResponseComittedFilter.java) - filter not calling `doFilter` method if response `isCommitted`:  
+    [ResponseComittedFilter](src/main/java/com/github/alanger/shiroext/servlets/ResponseComittedFilter.java) - filter not calling `doFilter` method if response `isCommitted`:  
 
     ```xml
     <!-- Previous filter, response may have been committed -->
     <filter>
-        <filter-name>comitted-filter</filter-name>
-        <filter-class>com.github.alanger.shiroext.web.ResponseComittedFilter</filter-class>
+        <filter-name>response-comitted-filter</filter-name>
+        <filter-class>com.github.alanger.shiroext.servlets.ResponseComittedFilter</filter-class>
     </filter>
     <filter-mapping>
-        <filter-name>comitted-filter</filter-name>
+        <filter-name>response-comitted-filter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <!-- Next filter do chain of request only if response not committed -->
     ```
 
-* [org.apache.shiro.web.util.RedirectView](src/main/java/org/apache/shiro/web/util/RedirectView.java) - overrides original Shiro class (only in jar with all dependencies `shiro-ext-{version}-all.jar`) for using code `303` in redirects if property specified:
+    [MutableRequestFilter](src/main/java/com/github/alanger/shiroext/servlets/MutableRequestFilter.java) - makes HttpRequest object is mutable, see [MutableRequestWrapper](src/main/java/com/github/alanger/shiroext/servlets/MutableRequestWrapper.java):  
+
+    ```xml
+    <filter>
+        <filter-name>mutable-request-filter</filter-name>
+        <filter-class>com.github.alanger.shiroext.servlets.MutableRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>mutable-request-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    ```
+
+    [MultiReadRequestFilter](src/main/java/com/github/alanger/shiroext/servlets/MultiReadRequestFilter.java) - similarly `MutableRequestFilter` and makes HttpRequest object is multiple readable, see [MultiReadRequestWrapper](src/main/java/com/github/alanger/shiroext/servlets/MultiReadRequestWrapper.java):  
+
+    ```xml
+    <filter>
+        <filter-name>multiread-request-filter</filter-name>
+        <filter-class>com.github.alanger.shiroext.servlets.MultiReadRequestFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>multiread-request-filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    ```
+
+* [RedirectView](src/main/java/org/apache/shiro/web/util/RedirectView.java) - overrides original Shiro class (only in jar with all dependencies `shiro-ext-{version}-all.jar`) for using code `303` in redirects if property specified:
 
     ```properties
     -Dorg.apache.shiro.web.util.RedirectView.ignoreHttp10Compatible=true  
@@ -202,7 +248,7 @@ Add this dependency to your `pom.xml` to reference the library:
 <dependency>
     <groupId>com.github.a-langer</groupId>
     <artifactId>shiro-ext</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -212,7 +258,7 @@ Or this dependency if need all libraries in one file:
 <dependency>
     <groupId>com.github.a-langer</groupId>
     <artifactId>shiro-ext</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <classifier>all</classifier>
 </dependency>
 ```

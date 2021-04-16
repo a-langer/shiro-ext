@@ -25,6 +25,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import com.github.alanger.shiroext.realm.AttributeProvider;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -40,8 +42,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.github.alanger.shiroext.realm.AttributeProvider;
 
 public class ActiveDirectoryRealm extends AbstractLdapRealm implements AttributeProvider {
 
@@ -241,15 +241,75 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         return this.systemPassword;
     }
 
+    private String roleWhiteList;
+
+    public String getRoleWhiteList() {
+        return roleWhiteList;
+    }
+
+    public void setRoleWhiteList(String roleWhiteList) {
+        this.roleWhiteList = roleWhiteList;
+    }
+
+    private String roleBlackList;
+
+    public String getRoleBlackList() {
+        return roleBlackList;
+    }
+
+    public void setRoleBlackList(String roleBlackList) {
+        this.roleBlackList = roleBlackList;
+    }
+
+    private boolean isRoleBlackOrWhite(String roleName) {
+        if (roleWhiteList != null) {
+            return roleName.matches(roleWhiteList);
+        }
+        if (roleBlackList != null) {
+            return !roleName.matches(roleBlackList);
+        }
+        return true;
+    }
+
+    private String userWhiteList;
+
+    public String getUserWhiteList() {
+        return userWhiteList;
+    }
+
+    public void setUserWhiteList(String userWhiteList) {
+        this.userWhiteList = userWhiteList;
+    }
+
+    private String userBlackList;
+
+    public String getUserBlackList() {
+        return userBlackList;
+    }
+
+    public void setUserBlackList(String userBlackList) {
+        this.userBlackList = userBlackList;
+    }
+
+    private boolean isUserBlackOrWhite(String userName) {
+        if (userWhiteList != null) {
+            return userName.matches(userWhiteList);
+        }
+        if (userBlackList != null) {
+            return !userName.matches(userBlackList);
+        }
+        return true;
+    }
+
     private boolean isValidPrincipalName(String userPrincipalName) {
         if (userPrincipalName != null) {
             if (StringUtils.hasLength(userPrincipalName) && userPrincipalName.contains("@")) {
                 String userPrincipalWithoutDomain = userPrincipalName.split("@")[0].trim();
                 if (StringUtils.hasLength(userPrincipalWithoutDomain)) {
-                    return true;
+                    return isUserBlackOrWhite(userPrincipalWithoutDomain);
                 }
             } else if (StringUtils.hasLength(userPrincipalName)) {
-                return true;
+                return isUserBlackOrWhite(userPrincipalName);
             }
         }
         return false;
@@ -431,12 +491,21 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
 
             // Load roles from map [admin, all, manager]
             rolesForGroups.addAll(getRoleNamesForGroups(groupNames));
+
+            // Filter roles by black or white list
+            if (roleBlackList != null || roleWhiteList != null) {
+                filterRoleBlackOrWhite(rolesForGroups);
+            }
         }
 
         return rolesForGroups;
     }
 
-    private NamingEnumeration<SearchResult> search(LdapContext context, String searchBase, String searchFilter,
+    protected void filterRoleBlackOrWhite(Collection<String> roleNames) {
+        roleNames.removeIf(g -> !isRoleBlackOrWhite(g));
+    }
+
+    protected NamingEnumeration<SearchResult> search(DirContext context, String searchBase, String searchFilter,
             Object[] searchArguments, String[] returningAttributes) throws NamingException {
         SearchControls searchCtls = new SearchControls();
         searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -446,7 +515,7 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         return context.search(searchBase, searchFilter, searchArguments, searchCtls);
     }
 
-    private Map<String, Collection<String>> getAttributesForUser(String username, LdapContext ldapContext)
+    private Map<String, Collection<String>> getAttributesForUser(String username, DirContext ldapContext)
             throws NamingException {
         Map<String, Collection<String>> attributes = new LinkedHashMap<>();
 
@@ -630,4 +699,5 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             }
         }
     }
+
 }

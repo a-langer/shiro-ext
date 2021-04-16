@@ -1,4 +1,4 @@
-package com.github.alanger.shiroext.web;
+package com.github.alanger.shiroext.servlets;
 
 import java.io.IOException;
 import java.util.logging.Level;

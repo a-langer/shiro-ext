@@ -73,7 +73,7 @@
   <!-- Ext: Stop executing the request if the HTTP response is committed -->
   <filter>
       <filter-name>comitted-filter</filter-name>
-      <filter-class>com.github.alanger.shiroext.web.ResponseComittedFilter</filter-class>
+      <filter-class>com.github.alanger.shiroext.servlets.ResponseComittedFilter</filter-class>
       <async-supported>true</async-supported>
   </filter>
   <filter-mapping>

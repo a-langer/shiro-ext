@@ -18,7 +18,7 @@
         <condition type="session-isnew" operator="equal" next="or">true</condition>
         <condition type="session-attribute" name="sessionCreated" operator="equal">true</condition>
         <from>.*</from>
-        <run class="com.github.alanger.shiroext.web.ScriptProcessedServlet" method="service">
+        <run class="com.github.alanger.shiroext.servlets.ScriptProcessedServlet" method="service">
             <init-param>
                 <param-name>invoke-script-text</param-name>
                 <param-value>

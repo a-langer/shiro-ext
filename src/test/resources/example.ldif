@@ -1,0 +1,55 @@
+version: 1
+# Root
+dn: DC=CORP,DC=COMPANY,DC=COM
+objectClass: domain
+objectClass: top
+dc: CORP
+
+# OU for groups
+dn: OU=Groups,DC=CORP,DC=COMPANY,DC=COM
+objectClass: top
+objectClass: organizationalUnit
+ou: Groups
+
+# OU for Peoples
+dn: OU=Peoples,DC=CORP,DC=COMPANY,DC=COM
+objectClass: top
+objectClass: organizationalUnit
+ou: Peoples
+
+# Group "Developers"
+dn: CN=Developers,OU=Groups,DC=CORP,DC=COMPANY,DC=COM
+objectClass: groupOfNames
+objectClass: group
+cn: Developers
+member: CN=Designers,OU=Groups,DC=CORP,DC=COMPANY,DC=COM
+
+# Group "Designers"
+dn: CN=Designers,OU=Groups,DC=CORP,DC=COMPANY,DC=COM
+objectClass: groupOfNames
+objectClass: group
+cn: Designers
+member: CN=Langer Alexey,OU=Peoples,DC=CORP,DC=COMPANY,DC=COM
+
+# Account "langer"
+dn: CN=Langer Alexey,OU=Peoples,DC=CORP,DC=COMPANY,DC=COM
+objectClass: top
+objectClass: person
+objectClass: user
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+objectCategory: person
+uid: langer
+sAMAccountName: langer
+userPassword: password
+cn: Langer Alexey
+description: Developer
+displayName: Java developer
+memberOf: CN=Developers,OU=Groups,DC=CORP,DC=COMPANY,DC=COM
+    , CN=Designers,OU=Groups,DC=CORP,DC=COMPANY,DC=COM
+mail: langer@corp.company.com
+title: Langer Alexey
+department: Java developers
+telephoneNumber: 8888
+
+

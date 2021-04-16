@@ -1,4 +1,4 @@
-package com.github.alanger.shiroext.web;
+package com.github.alanger.shiroext.servlets;
 
 import static org.junit.Assert.assertEquals;
 

@@ -3,10 +3,10 @@
 
     <groupId>com.github.a-langer</groupId>
     <artifactId>shiro-ext</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Extension for Apache Shiro</description>
-    <url>https://github.com/a-langer/shiro-ext</url>
+    <url>https://github.com/a-langer/${project.artifactId}</url>
 
     <licenses>
         <license>
@@ -26,9 +26,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git@github.com:a-langer/shiro-ext.git</connection>
-        <developerConnection>git@github.com:a-langer/shiro-ext.git</developerConnection>
-        <url>https://github.com/a-langer/shiro-ext</url>
+        <connection>scm:git@github.com:a-langer/${project.artifactId}.git</connection>
+        <developerConnection>git@github.com:a-langer/${project.artifactId}.git</developerConnection>
+        <url>https://github.com/a-langer/${project.artifactId}</url>
     </scm>
 
     <distributionManagement>
@@ -75,15 +75,13 @@
         <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
         <shiro.version>1.7.1</shiro.version>
+        <commons.logging.version>1.2</commons.logging.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
-        <jenkins.version>2.219</jenkins.version>
-        <jenkins.mailer.version>1.20</jenkins.mailer.version>
-        <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
         <junit.jupiter.engine.version>5.6.2</junit.jupiter.engine.version>
         <mockito.version>3.3.3</mockito.version>
         <spring.test.version>5.2.6.RELEASE</spring.test.version>
-        <skipTests>true</skipTests>
+        <embedded.ldap.junit.version>0.8.1</embedded.ldap.junit.version>
     </properties>
 
     <build>
@@ -145,33 +143,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>${maven.source.plugin.version}</version>
-                <configuration></configuration>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- mvn clean test -Dsurefire.skipAfterFailureCount=1 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -188,14 +159,14 @@
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
-                    <!-- mvn surefire:test@shiro-ldap-realm -Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword -DskipTests=false -->
+                    <!-- mvn surefire:test@shiro-ldap-realm -Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword -->
                     <execution>
                         <id>shiro-ldap-realm</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skipTests>${skipTests}</skipTests>
+                            <skipTests>false</skipTests>
                             <systemPropertyVariables>
                                 <javax.net.ssl.trustStore>${user.home}/keystore.jks</javax.net.ssl.trustStore>
                             </systemPropertyVariables>
@@ -332,22 +303,19 @@
                             </includes>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>net.revelc.code.formatter</groupId>
-                <artifactId>formatter-maven-plugin</artifactId>
-                <version>${formatter.maven.plugin.version}</version>
-                <configuration>
-                    <_configFile>${project.basedir}/google-code-style.xml</_configFile>
-                </configuration>
-                <executions>
+                    <!-- mvn surefire:test@mutable-request-wrapper -Dsurefire.skipAfterFailureCount=1 -->
                     <execution>
-                        <id>format-code</id>
-                        <phase>verify</phase>
+                        <id>mutable-request-wrapper</id>
                         <goals>
-                            <goal>format</goal>
+                            <goal>test</goal>
                         </goals>
+                        <configuration>
+                            <skipTests>false</skipTests>
+                            <includes>
+                                <include>**/MutableRequestWrapperTest.java</include>
+                                <include>**/MultiReadRequestWrapperTest.java</include>
+                            </includes>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -360,6 +328,50 @@
             <id>ossrh</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven.source.plugin.version}</version>
+                        <configuration></configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.revelc.code.formatter</groupId>
+                        <artifactId>formatter-maven-plugin</artifactId>
+                        <version>${formatter.maven.plugin.version}</version>
+                        <configuration>
+                            <_configFile>${project.basedir}/google-code-style.xml</_configFile>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>format-code</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>format</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven.javadoc.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -399,29 +411,16 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${commons.logging.version}</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet.version}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-core</artifactId>
-            <version>${jenkins.version}</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-jelly</groupId>
-                    <artifactId>commons-jelly</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins</groupId>
-            <artifactId>mailer</artifactId>
-            <version>${jenkins.mailer.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -465,6 +464,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.zapodot</groupId>
+            <artifactId>embedded-ldap-junit</artifactId>
+            <version>${embedded.ldap.junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
