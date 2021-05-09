@@ -9,7 +9,7 @@ This project implement extension for security framework [Apache Shiro][1].
 
 ## Supported features
 
-* Additional Shiro [filters][2] classes.  
+* Additional Shiro [filters][2] classes:  
     [RolesAuthzFilter](src/main/java/com/github/alanger/shiroext/web/RolesAuthzFilter.java) - checks the need for all the listed roles:  
 
     ```ini
@@ -97,7 +97,7 @@ This project implement extension for security framework [Apache Shiro][1].
         X-Requested-With: XMLHttpRequest
         ```
 
-* [ActiveDirectoryRealm](src/main/java/com/github/alanger/shiroext/realm/activedirectory/ActiveDirectoryRealm.java) - security realm for Active Directory (LDAP) with additional options.  
+* [ActiveDirectoryRealm](src/main/java/com/github/alanger/shiroext/realm/activedirectory/ActiveDirectoryRealm.java) - security realm for Active Directory (LDAP) with additional options:  
 
     Common or specified suffix of principal for system username:
 
@@ -111,6 +111,13 @@ This project implement extension for security framework [Apache Shiro][1].
     # System username will be used specified suffix principal
     # CORP.systemUsername = username@SPECIFIED.SUFFIX.COM
     CORP.systemPassword = password
+    ```
+
+    Special prefix for a more unique username of ldap realm:
+
+    ```ini
+    # User "myuser" will be translated in "CORP.myuser", after authentication
+    CORP.userPrefix = CORP.
     ```
 
     Support of domain name:
@@ -172,7 +179,7 @@ This project implement extension for security framework [Apache Shiro][1].
     securityManager.authorizer = $realmAuthorizer
     ```
 
-* Simple servlet and filters (configured in descriptor `web.xml`).  
+* Simple servlet and filters (configured in descriptor `web.xml`):  
     [ScriptProcessedServlet](src/main/java/com/github/alanger/shiroext/servlets/ScriptProcessedServlet.java) - delegate processing HTTP request and response to specified script (by default JavaScript through [Nashorn][7] engine):  
 
     ```xml
@@ -262,7 +269,7 @@ Add this dependency to your `pom.xml` to reference the library:
 <dependency>
     <groupId>com.github.a-langer</groupId>
     <artifactId>shiro-ext</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
 </dependency>
 ```
 
@@ -272,7 +279,7 @@ Or this dependency if need all libraries in one file:
 <dependency>
     <groupId>com.github.a-langer</groupId>
     <artifactId>shiro-ext</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <classifier>all</classifier>
 </dependency>
 ```

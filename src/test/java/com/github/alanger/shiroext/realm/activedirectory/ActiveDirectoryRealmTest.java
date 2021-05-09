@@ -4,13 +4,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
-import org.apache.shiro.authc.AuthenticationToken;
-import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.realm.ldap.JndiLdapContextFactory;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.ldap.LdapContextFactory;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
@@ -34,6 +34,7 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
     String NAME = System.getProperty("name", "CORP");
     String URL = System.getProperty("url", null);
     String USERNAME = System.getProperty("username", null);
+    String USER_PREFIX = System.getProperty("user_prefix", NAME + ".");
     String PASSWORD = System.getProperty("password", null);
     String SYSTEM_USERNAME = System.getProperty("systemUsername", USERNAME);
     String SYSTEM_PASSWORD = System.getProperty("systemPassword", PASSWORD);
@@ -58,7 +59,6 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
             .importingLdifs("example.ldif").build();
 
     public ActiveDirectoryRealmTest() {
-        setName(NAME);
         if (URL != null && SYSTEM_USERNAME != null && SYSTEM_PASSWORD != null) {
             setUrl(URL);
             setSystemUsername(SYSTEM_USERNAME);
@@ -68,15 +68,17 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
             PASSWORD = "password";
             GROUP = "Developers";
             GROUP_NESTED = null; // Embedded ldap not supported group nested
-            MockLdapContextFactory contextFactory = new MockLdapContextFactory(embeddedLdapRule);
-            setLdapContextFactory(contextFactory);
+            setLdapContextFactory(new MockLdapContextFactory(embeddedLdapRule));
         }
+        setName(NAME);
+        setUserPrefix(USER_PREFIX);
         setSearchBase(SEARCH_BASE);
         setSearchFilter(SEARCH_FILTER);
         setPrincipalSuffix(PRINCIPAL_SUFFIX);
         setAuthenticationCachingEnabled(true);
         setRoleBase(ROLE_BASE);
         setRoleSearch(ROLE_SEARCH);
+        setCommonRole(COMMON_ROLE);
         onInit();
     }
 
@@ -94,7 +96,6 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         if (URL != null && SYSTEM_USERNAME != null && SYSTEM_PASSWORD != null) {
             LdapContextFactory lcf = getLdapContextFactory();
             setRoleNested(true);
-            setCommonRole(COMMON_ROLE);
 
             // # AD ldap context
             // contextFactory = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryLdapContextFactory
@@ -110,30 +111,43 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
             contextFactory.setSystemPassword(SYSTEM_PASSWORD);
             contextFactory.getLdapContext((Object) (trimDomain(USERNAME)), (Object) PASSWORD);
             setLdapContextFactory(contextFactory);
-            assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-            Set<String> roles = getRoleNamesForUser(USERNAME, contextFactory.getSystemLdapContext());
+
+            AuthenticationInfo authc = doGetAuthenticationInfo(USERNAME, PASSWORD);
+            assertNotNull(authc);
+            AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+            assertNotNull(authz);
+            Collection<String> roles = authz.getRoles();
             assertFalse(roles.isEmpty());
             assertTrue(roles.contains(COMMON_ROLE));
             assertTrue(GROUP != null ? roles.contains(GROUP) : true);
             assertTrue(GROUP_NESTED != null ? roles.contains(GROUP_NESTED) : true);
 
             setRoleNested(false);
-            setCommonRole(null);
             setLdapContextFactory(lcf);
         }
     }
 
     @Test
     public void test01_Authentication() throws Throwable {
-        AuthenticationToken token = new UsernamePasswordToken(USERNAME, PASSWORD);
-        assertNotNull(doGetAuthenticationInfo(token));
+        AuthenticationInfo authc = doGetAuthenticationInfo(USERNAME, PASSWORD);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        Collection<String> roles = authz.getRoles();
+        assertNotNull(authc);
+        assertEquals(USER_PREFIX + USERNAME, (String) getAvailablePrincipal(authc.getPrincipals()));
+        assertEquals(getAvailablePrincipal(authc.getPrincipals()), authc.getPrincipals().getPrimaryPrincipal());
+        assertTrue(!roles.isEmpty());
+        assertTrue(roles.contains(COMMON_ROLE));
+        assertTrue(GROUP != null ? roles.contains(GROUP) : true);
+        assertFalse(GROUP_NESTED != null ? roles.contains(GROUP_NESTED) : false);
     }
 
     @Test
     public void test02_Role() throws Throwable {
-        Set<String> roles = getRoleNamesForUser(USERNAME, getLdapContextFactory().getSystemLdapContext());
+        AuthenticationInfo authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        Collection<String> roles = authz.getRoles();
         assertTrue(!roles.isEmpty());
-        assertFalse(roles.contains(COMMON_ROLE));
+        assertTrue(roles.contains(COMMON_ROLE));
         assertTrue(GROUP != null ? roles.contains(GROUP) : true);
         assertFalse(GROUP_NESTED != null ? roles.contains(GROUP_NESTED) : false);
     }
@@ -141,8 +155,9 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
     @Test
     public void test03_RoleNested() throws Throwable {
         setRoleNested(true);
-        setCommonRole(COMMON_ROLE);
-        Set<String> roles = getRoleNamesForUser(USERNAME, getLdapContextFactory().getSystemLdapContext());
+        AuthenticationInfo authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        Collection<String> roles = authz.getRoles();
         assertTrue(!roles.isEmpty());
         assertTrue(roles.contains(COMMON_ROLE));
         assertTrue(GROUP != null ? roles.contains(GROUP) : true);
@@ -151,20 +166,22 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
 
     @Test
     public void test04_RoleBlackOrWhiteList() throws Throwable {
-        Set<String> r = getRoleNamesForUser(USERNAME, getLdapContextFactory().getSystemLdapContext());
-        Set<String> roles = new LinkedHashSet<>(r);
+        AuthenticationInfo authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        Collection<String> r = authz.getRoles();
+        Collection<String> roles = new LinkedHashSet<>(r);
 
         setRoleBlackList(GROUP + "|other_role1");
         filterRoleBlackOrWhite(roles);
         assertFalse(roles.isEmpty());
-        assertFalse(roles.contains(COMMON_ROLE));
+        assertTrue(roles.contains(COMMON_ROLE));
         assertFalse(GROUP != null ? roles.contains(GROUP) : false);
 
         roles = new LinkedHashSet<>(r);
         setRoleBlackList("other_role1|other_role2");
         filterRoleBlackOrWhite(roles);
         assertFalse(roles.isEmpty());
-        assertFalse(roles.contains(COMMON_ROLE));
+        assertTrue(roles.contains(COMMON_ROLE));
         assertTrue(GROUP != null ? roles.contains(GROUP) : true);
         setRoleBlackList(null);
 
@@ -188,11 +205,11 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
     public void test05_RealmNotNamed() throws Throwable {
         setNamed(false);
         // without domain name
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
+        assertNotNull(doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD));
         // with right domain name
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
+        assertNotNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         // with bad domain name
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
     }
 
     @Test
@@ -200,14 +217,14 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         setNamed(false);
 
         setUserBlackList(USERNAME + "|other_user");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        assertNull(doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
 
         setUserBlackList("other_user1|other_user2");
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        assertNotNull(doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD));
+        assertNotNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         setUserBlackList(null);
     }
 
@@ -216,14 +233,14 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         setNamed(false);
 
         setUserWhiteList(USERNAME + "|other_user");
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        assertNotNull(doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD));
+        assertNotNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
 
         setUserWhiteList("other_user1|other_user2");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        assertNull(doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         setUserBlackList(null);
     }
 
@@ -231,12 +248,21 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
     public void test08_RealmNamed() throws Throwable {
         setNamed(true);
 
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        AuthenticationInfo authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNotNull(authc);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        assertTrue(authz.getRoles().contains(COMMON_ROLE));
+
+        authc = doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+
         setName("OTHER_REALM");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        setName(NAME);
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+        setName(NAME); // Restore default name
     }
 
     @Test
@@ -244,19 +270,33 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         setNamed(true);
 
         setUserBlackList(USERNAME + "|other_user");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        AuthenticationInfo authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+        authc = doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+
         setName("OTHER_REALM");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
         setName(NAME);
 
         setUserBlackList("other_user1|other_user2");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNotNull(authc);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        assertTrue(authz.getRoles().contains(COMMON_ROLE));
+
+        authc = doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+
         setName("OTHER_REALM");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
         setName(NAME);
         setUserBlackList(null);
     }
@@ -266,21 +306,37 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         setNamed(true);
 
         setUserWhiteList(USERNAME + "|other_user");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNotNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        AuthenticationInfo authc = doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD);
+        assertNull(authc);
+
+        authc = doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD);
+        assertNotNull(authc);
+        AuthorizationInfo authz = doGetAuthorizationInfo(authc.getPrincipals());
+        assertTrue(authz.getRoles().contains(COMMON_ROLE));
+
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         setName("OTHER_REALM");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
+        assertNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         setName(NAME);
 
         setUserWhiteList("other_user1|other_user2");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken("OTHER_DOMAIN" + "\\" + USERNAME, PASSWORD)));
+        assertNull(doGetAuthenticationInfo(USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
+        assertNull(doGetAuthenticationInfo("OTHER_DOMAIN" + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         setName("OTHER_REALM");
-        assertNull(doGetAuthenticationInfo(new UsernamePasswordToken(NAME + "\\" + USERNAME, PASSWORD)));
+        assertNull(doGetAuthenticationInfo(NAME + "\\" + USER_PREFIX + USERNAME, PASSWORD));
         setName(NAME);
         setUserWhiteList(null);
+    }
+
+    @Test
+    public void test11_RealmNamedUserWhiteListWithoutPrefix() throws Throwable {
+        String savePrefix = USER_PREFIX;
+        USER_PREFIX = "";
+        setUserPrefix(null);
+        test10_RealmNamedUserWhiteList();
+        USER_PREFIX = savePrefix;
+        setUserPrefix(USER_PREFIX);
     }
 
 }

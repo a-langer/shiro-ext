@@ -301,6 +301,16 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         return true;
     }
 
+    private String userPrefix;
+
+    public String getUserPrefix() {
+        return userPrefix;
+    }
+
+    public void setUserPrefix(String userPrefix) {
+        this.userPrefix = userPrefix;
+    }
+
     private boolean isValidPrincipalName(String userPrincipalName) {
         if (userPrincipalName != null) {
             if (StringUtils.hasLength(userPrincipalName) && userPrincipalName.contains("@")) {
@@ -315,17 +325,29 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         return false;
     }
 
+    private String withoutPrefix(String username) {
+        if (getUserPrefix() != null && username != null) {
+            return username.startsWith(getUserPrefix()) ? username.replaceFirst(getUserPrefix(), "") : username;
+        }
+        return username;
+    }
+
     private String withoutDomain(String username) {
         String domain = null;
         if (username != null && username.indexOf("\\") != -1) {
             String[] names = username.split("\\\\");
             username = names.length == 2 ? names[1] : null;
             domain = names.length == 2 ? names[0] : null;
-        } else if (username != null && username.indexOf("@") != -1) {
+        }
+        if (username != null && username.indexOf("@") != -1) {
             String[] names = username.split("@");
             username = names.length == 2 ? names[0] : null;
             domain = names.length == 2 ? names[1] : null;
         }
+
+        // Remove user prefix
+        username = withoutPrefix(username);
+
         if (log.isTraceEnabled())
             log.trace("withOutDomain username: {}, domain: {}: ", username, domain);
 
@@ -360,6 +382,11 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         }
     }
 
+    protected AuthenticationInfo doGetAuthenticationInfo(final String username, final String password)
+            throws AuthenticationException {
+        return doGetAuthenticationInfo(new UsernamePasswordToken(username, password));
+    }
+
     @Override
     protected AuthenticationInfo queryForAuthenticationInfo(AuthenticationToken token,
             LdapContextFactory ldapContextFactory) throws NamingException {
@@ -382,8 +409,8 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
     }
 
     protected AuthenticationInfo buildAuthenticationInfo(String username, char[] password) {
-        if (this.principalSuffix != null && username.indexOf('@') > 1) {
-            username = username.split("@")[0];
+        if (getUserPrefix() != null) {
+            username = getUserPrefix() + username;
         }
         return new SimpleAuthenticationInfo(username, password, getName());
     }
@@ -406,7 +433,7 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             LdapContextFactory ldapContextFactory) throws NamingException {
         Set<String> roleNames = Collections.emptySet();
 
-        String username = withoutDomain((String) getAvailablePrincipal(principals));
+        String username = withoutPrefix((String) getAvailablePrincipal(principals));
         if (!isValidPrincipalName(username)) {
             return null;
         }
@@ -433,7 +460,6 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
 
         Set<String> rolesForGroups = new LinkedHashSet<>();
 
-        username = withoutDomain(username);
         if (!isValidPrincipalName(username)) {
             return rolesForGroups;
         }

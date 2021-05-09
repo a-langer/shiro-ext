@@ -18,7 +18,7 @@ public class ActiveDirectoryLdapContextFactory extends JndiLdapContextFactory {
     }
 
     private boolean isSystemPrincipal(Object principal) {
-        return principal != null && principal.equals(getSystemUsername()) && getSystemUsername().contains("@");
+        return principal != null && (principal.equals(getSystemUsername()) && getSystemUsername().contains("@"));
     }
 
     @Override
