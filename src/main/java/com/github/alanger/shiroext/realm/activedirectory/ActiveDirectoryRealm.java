@@ -148,9 +148,12 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
     }
 
     /**
-     * Should we ignore PartialResultExceptions when iterating over NamingEnumerations? Microsoft Active Directory often
-     * returns referrals, which lead to PartialResultExceptions. Unfortunately there's no stable way to detect, if the
-     * Exceptions really come from an AD referral. Set to true to ignore PartialResultExceptions.
+     * Should we ignore PartialResultExceptions when iterating over
+     * NamingEnumerations? Microsoft Active Directory often
+     * returns referrals, which lead to PartialResultExceptions. Unfortunately
+     * there's no stable way to detect, if the
+     * Exceptions really come from an AD referral. Set to true to ignore
+     * PartialResultExceptions.
      */
     protected boolean adCompat = false;
 

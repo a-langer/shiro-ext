@@ -22,7 +22,8 @@ import org.zapodot.junit.ldap.EmbeddedLdapRule;
 import org.zapodot.junit.ldap.EmbeddedLdapRuleBuilder;
 
 /**
- * mvn test -DargLine="-Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword" -Dgroup=MyGroup
+ * mvn test -DargLine="-Durl=ldap://corp.company.com:389 -Dusername=userLogin
+ * -Dpassword=userPassword" -Dgroup=MyGroup
  * -DgroupNested=MyNestedGroup -Dsurefire.skipAfterFailureCount=1
  * https://github.com/apache/shiro/blob/master/core/src/test/groovy/org/apache/shiro/realm/AuthenticatingRealmIntegrationTest.groovy
  */
@@ -98,7 +99,8 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
             setRoleNested(true);
 
             // # AD ldap context
-            // contextFactory = com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryLdapContextFactory
+            // contextFactory =
+            // com.github.alanger.shiroext.realm.activedirectory.ActiveDirectoryLdapContextFactory
             // contextFactory.url = ldaps://ad.domain.com:636
             // contextFactory.principalSuffix = @DOMAIN.COM
             // # contextFactory.systemUsername = shiro@SPECIFIED.SUFFIX.COM

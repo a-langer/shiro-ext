@@ -136,7 +136,7 @@
                 <version>${maven.surefire.plugin.version}</version>
                 <configuration>
                     <trimStackTrace>false</trimStackTrace>
-                    <skipTests>true</skipTests>
+                    <skip>true</skip> 
                     <failIfNoTests>false</failIfNoTests>
                     <reuseForks>true</reuseForks>
                     <forkCount>1</forkCount>
@@ -152,7 +152,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skipTests>false</skipTests>
+                            <skip>false</skip>
                             <systemPropertyVariables>
                                 <javax.net.ssl.trustStore>${user.home}/keystore.jks</javax.net.ssl.trustStore>
                             </systemPropertyVariables>
@@ -167,7 +167,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skipTests>false</skipTests>
+                            <skip>false</skip>
                             <systemPropertyVariables>
                                 <config>
                                 [main]
@@ -250,7 +250,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skipTests>false</skipTests>
+                            <skip>false</skip>
                             <systemPropertyVariables>
                                 <init-script-text>servletConfig.addInitParameter("init-parameter", "init-value")</init-script-text>
                                 <invoke-script-text>response.getOutputStream().print("text1")</invoke-script-text>
@@ -267,7 +267,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skipTests>false</skipTests>
+                            <skip>false</skip>
                             <systemPropertyVariables>
                                 <invoke-script-text>
                                     var config;
@@ -296,7 +296,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <skipTests>false</skipTests>
+                            <skip>false</skip>
                             <includes>
                                 <include>**/MutableRequestWrapperTest.java</include>
                                 <include>**/MultiReadRequestWrapperTest.java</include>
@@ -333,7 +333,7 @@
                         <artifactId>formatter-maven-plugin</artifactId>
                         <version>${formatter.maven.plugin.version}</version>
                         <configuration>
-                            <_configFile>${project.basedir}/google-code-style.xml</_configFile>
+                            <configFile>${project.basedir}/eclipse-java-formatter.xml</configFile>
                         </configuration>
                         <executions>
                             <execution>
@@ -349,6 +349,14 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>${maven.javadoc.plugin.version}</version>
+                        <configuration>
+                            <additionalparam>-Xdoclint:all -Xdoclint:-missing</additionalparam>
+                            <additionalOptions>-Xdoclint:all -Xdoclint:-missing</additionalOptions>
+                            <additionalJOptions>
+                                <additionalJOption>-Xdoclint:all</additionalJOption>
+                                <additionalJOption>-Xdoclint:-missing</additionalJOption>
+                            </additionalJOptions>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>

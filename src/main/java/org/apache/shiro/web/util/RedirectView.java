@@ -13,7 +13,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class RedirectView {
 
-    // Fix redirect code -Dorg.apache.shiro.web.util.RedirectView.ignoreHttp10Compatible=true
+    // Fix redirect code
+    // -Dorg.apache.shiro.web.util.RedirectView.ignoreHttp10Compatible=true
     private boolean ignoreHttp10Compatible = Boolean
             .getBoolean(RedirectView.class.getCanonicalName() + ".ignoreHttp10Compatible");
 
@@ -39,7 +40,8 @@ public class RedirectView {
     /**
      * Create a new RedirectView with the given URL.
      * <p>
-     * The given URL will be considered as relative to the web server, not as relative to the current ServletContext.
+     * The given URL will be considered as relative to the web server, not as
+     * relative to the current ServletContext.
      *
      * @param url
      *            the URL to redirect to
@@ -55,7 +57,8 @@ public class RedirectView {
      * @param url
      *            the URL to redirect to
      * @param contextRelative
-     *            whether to interpret the given URL as relative to the current ServletContext
+     *            whether to interpret the given URL as relative to the current
+     *            ServletContext
      */
     public RedirectView(String url, boolean contextRelative) {
         this(url);
@@ -68,7 +71,8 @@ public class RedirectView {
      * @param url
      *            the URL to redirect to
      * @param contextRelative
-     *            whether to interpret the given URL as relative to the current ServletContext
+     *            whether to interpret the given URL as relative to the current
+     *            ServletContext
      * @param http10Compatible
      *            whether to stay compatible with HTTP 1.0 clients
      */
@@ -87,14 +91,17 @@ public class RedirectView {
     }
 
     /**
-     * Set whether to interpret a given URL that starts with a slash ("/") as relative to the current ServletContext,
+     * Set whether to interpret a given URL that starts with a slash ("/") as
+     * relative to the current ServletContext,
      * i.e. as relative to the web application root.
      * <p/>
-     * Default is "false": A URL that starts with a slash will be interpreted as absolute, i.e. taken as-is. If true,
+     * Default is "false": A URL that starts with a slash will be interpreted as
+     * absolute, i.e. taken as-is. If true,
      * the context path will be prepended to the URL in such a case.
      *
      * @param contextRelative
-     *            whether to interpret a given URL that starts with a slash ("/") as relative to the current
+     *            whether to interpret a given URL that starts with a slash ("/") as
+     *            relative to the current
      *            ServletContext, i.e. as relative to the web application root.
      * @see javax.servlet.http.HttpServletRequest#getContextPath
      */
@@ -105,11 +112,14 @@ public class RedirectView {
     /**
      * Set whether to stay compatible with HTTP 1.0 clients.
      * <p>
-     * In the default implementation, this will enforce HTTP status code 302 in any case, i.e. delegate to
-     * <code>HttpServletResponse.sendRedirect</code>. Turning this off will send HTTP status code 303, which is the
+     * In the default implementation, this will enforce HTTP status code 302 in any
+     * case, i.e. delegate to
+     * <code>HttpServletResponse.sendRedirect</code>. Turning this off will send
+     * HTTP status code 303, which is the
      * correct code for HTTP 1.1 clients, but not understood by HTTP 1.0 clients.
      * <p>
-     * Many HTTP 1.1 clients treat 302 just like 303, not making any difference. However, some clients depend on 303
+     * Many HTTP 1.1 clients treat 302 just like 303, not making any difference.
+     * However, some clients depend on 303
      * when redirecting after a POST request; turn this flag off in such a scenario.
      *
      * @param http10Compatible
@@ -154,14 +164,16 @@ public class RedirectView {
             targetUrl.append(request.getContextPath());
         }
         targetUrl.append(getUrl());
-        // change the following method to accept a StringBuilder instead of a StringBuilder for Shiro 2.x:
+        // change the following method to accept a StringBuilder instead of a
+        // StringBuilder for Shiro 2.x:
         appendQueryProperties(targetUrl, model, this.encodingScheme);
 
         sendRedirect(request, response, targetUrl.toString(), this.http10Compatible);
     }
 
     /**
-     * Append query properties to the redirect URL. Stringifies, URL-encodes and formats model attributes as query
+     * Append query properties to the redirect URL. Stringifies, URL-encodes and
+     * formats model attributes as query
      * properties.
      *
      * @param targetUrl
@@ -216,7 +228,8 @@ public class RedirectView {
     }
 
     /**
-     * URL-encode the given input String with the given encoding scheme, using {@link URLEncoder#encode(String, String)
+     * URL-encode the given input String with the given encoding scheme, using
+     * {@link URLEncoder#encode(String, String)
      * URLEncoder.encode(input, enc)}.
      *
      * @param input
@@ -234,7 +247,8 @@ public class RedirectView {
     }
 
     /**
-     * Determine name-value pairs for query strings, which will be stringified, URL-encoded and formatted by
+     * Determine name-value pairs for query strings, which will be stringified,
+     * URL-encoded and formatted by
      * appendQueryProperties.
      * <p/>
      * This implementation returns all model elements as-is.

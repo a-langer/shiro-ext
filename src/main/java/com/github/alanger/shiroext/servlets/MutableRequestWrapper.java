@@ -260,7 +260,8 @@ public class MutableRequestWrapper extends HttpServletRequestWrapper {
         if (this.content != null) {
             ByteArrayInputStream sourceStream = new ByteArrayInputStream(this.content.toByteArray());
             InputStreamReader sourceReader = (this.characterEncoding != null)
-                    ? new InputStreamReader(sourceStream, this.characterEncoding) : new InputStreamReader(sourceStream);
+                    ? new InputStreamReader(sourceStream, this.characterEncoding)
+                    : new InputStreamReader(sourceStream);
             this.reader = new BufferedReader(sourceReader);
         } else {
             this.reader = super.getReader();
@@ -335,7 +336,7 @@ public class MutableRequestWrapper extends HttpServletRequestWrapper {
         Map<String, String[]> result = new LinkedHashMap<>();
         result.putAll(super.getParameterMap());
         result.putAll(parameters);
-        return Collections.<String, String[]> unmodifiableMap(result);
+        return Collections.<String, String[]>unmodifiableMap(result);
     }
 
     @Override
@@ -433,7 +434,8 @@ public class MutableRequestWrapper extends HttpServletRequestWrapper {
         Objects.requireNonNull(languages, "LanguageRange List must not be null");
         DecimalFormat decimal = new DecimalFormat("0.0", DECIMAL_FORMAT_SYMBOLS);
         List<String> values = languages.stream().map(range -> range.getWeight() == Locale.LanguageRange.MAX_WEIGHT
-                ? range.getRange() : range.getRange() + ";q=" + decimal.format(range.getWeight()))
+                ? range.getRange()
+                : range.getRange() + ";q=" + decimal.format(range.getWeight()))
                 .collect(Collectors.toList());
         doAddHeaderValue(ACCEPT_LANGUAGE, toCommaDelimitedString(values), true);
     }
