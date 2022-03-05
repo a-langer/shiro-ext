@@ -68,7 +68,7 @@
         <logback.version>1.2.3</logback.version>
         <junit.jupiter.engine.version>5.6.2</junit.jupiter.engine.version>
         <mockito.version>3.3.3</mockito.version>
-        <spring.test.version>5.2.6.RELEASE</spring.test.version>
+        <spring.test.version>5.3.14</spring.test.version>
         <embedded.ldap.junit.version>0.8.1</embedded.ldap.junit.version>
     </properties>
 
