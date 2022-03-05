@@ -1,6 +1,7 @@
 package com.github.alanger.shiroext.servlets;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,7 +22,9 @@ public class ScriptProcessedServlet extends HttpServlet {
 
     protected final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
+    protected static final String CTX_PREFIX = "shiroext-";
     protected static final String ENGINE_NAME = "engine-name";
+    protected static final String ENGINE_CLASS = "engine-class";
     protected static final String INIT_SCRIPT = "init-script-text";
     protected static final String INVOKE_SCRIPT = "invoke-script-text";
     protected static final String DESTROY_SCRIPT = "destroy-script-text";
@@ -35,7 +38,6 @@ public class ScriptProcessedServlet extends HttpServlet {
     protected boolean initialized = false;
 
     protected Invocable invocable;
-    protected ScriptEngineManager manager;
     protected ScriptEngine engine;
 
     public String getEngineName() {
@@ -78,17 +80,32 @@ public class ScriptProcessedServlet extends HttpServlet {
         this.isServlet = isServlet;
     }
 
+    protected static String getInitParameter(ServletConfig config, String name, String defValue) {
+        String value = config.getInitParameter(name) != null ? config.getInitParameter(name)
+                : config.getServletContext().getInitParameter(CTX_PREFIX + name);
+        return value != null ? value : defValue;
+    }
+
     protected void initPatameter(ServletConfig config) throws ServletException {
         super.init(config);
 
-        engineName = getServletContext().getInitParameter(ENGINE_NAME) != null
-                ? getServletContext().getInitParameter(ENGINE_NAME)
-                : engineName;
-        engineName = getInitParameter(ENGINE_NAME) != null ? getInitParameter(ENGINE_NAME) : engineName;
-        manager = new ScriptEngineManager(getClass().getClassLoader());
-        engine = manager.getEngineByName(engineName);
-        if (engine == null)
-            throw new ServletException("Script engine '" + engineName + "' is null");
+        String engineClass = getInitParameter(config, ENGINE_CLASS, null);
+        if (engineClass != null) {
+            try {
+                Class<?> clazz = Class.forName(engineClass);
+                engine = (ScriptEngine) clazz.getDeclaredConstructor().newInstance();
+                engineName = engine.getFactory().getEngineName();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                throw new ServletException(e);
+            }
+        } else {
+            engineName = getInitParameter(config, ENGINE_NAME, engineName);
+            ScriptEngineManager manager = new ScriptEngineManager(getClass().getClassLoader());
+            engine = manager.getEngineByName(engineName);
+            if (engine == null)
+                throw new ServletException("Script engine '" + engineName + "' is null");
+        }
 
         engine.getContext().setAttribute("servletConfig", config, ScriptContext.ENGINE_SCOPE);
         engine.getContext().setAttribute("servletContext", config.getServletContext(), ScriptContext.ENGINE_SCOPE);

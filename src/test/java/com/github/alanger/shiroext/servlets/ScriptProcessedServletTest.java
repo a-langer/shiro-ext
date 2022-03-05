@@ -2,7 +2,6 @@ package com.github.alanger.shiroext.servlets;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -12,38 +11,48 @@ import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ScriptProcessedServletTest {
+public class ScriptProcessedServletTest extends ScriptProcessed {
 
-    static MockServletConfig config;
-    static MockServletContext context;
-    static ScriptProcessedServlet servlet;
+    private MockServletConfig config;
+    private ScriptProcessedServlet servlet;
 
-    @BeforeClass
-    public static void before() throws Throwable {
+    public ScriptProcessedServletTest() throws Throwable {
         config = new MockServletConfig();
         context = (MockServletContext) config.getServletContext();
-        context.addInitParameter("shiroext-engine-name", System.getProperty("shiroext-engine-name"));
-        config.addInitParameter("engine-name", System.getProperty("engine-name"));
-        config.addInitParameter("init-script-text", System.getProperty("init-script-text"));
-        config.addInitParameter("invoke-script-text", System.getProperty("invoke-script-text"));
-        config.addInitParameter("destroy-script-text", System.getProperty("destroy-script-text"));
-        config.addInitParameter("is-servlet", System.getProperty("is-servlet", "false"));
+
+        context.addInitParameter(CTX_PREFIX + ENGINE_NAME, propEngineName);
+        config.addInitParameter(ENGINE_NAME, propEngineName);
+
+        context.addInitParameter(CTX_PREFIX + ENGINE_CLASS, propEngineClass);
+        config.addInitParameter(ENGINE_CLASS, propEngineClass);
+
+        config.addInitParameter(INIT_SCRIPT, System.getProperty(INIT_SCRIPT));
+        config.addInitParameter(INVOKE_SCRIPT, System.getProperty(INVOKE_SCRIPT));
+        config.addInitParameter(DESTROY_SCRIPT, System.getProperty(DESTROY_SCRIPT));
+        config.addInitParameter(IS_SERVLET, System.getProperty(IS_SERVLET, "false"));
         servlet = new ScriptProcessedServlet();
+        servlet.init(config);
     }
 
     @Test
     public void test01_initScript() throws Throwable {
-        servlet.init(config);
         assertEquals("init-value", config.getInitParameter("init-parameter"));
     }
 
     @Test
-    public void test02_scriptEngine() throws Throwable {
-        assertEquals(System.getProperty("engine-name", "nashorn"), servlet.getEngineName());
+    public void test02_initParameters() throws Throwable {
+        assertEquals(propEngineName, getInitParameter(config, ENGINE_NAME, null));
+        assertEquals(propEngineClass, getInitParameter(config, ENGINE_CLASS, null));
     }
 
     @Test
-    public void test03_invokeScript() throws Throwable {
+    public void test03_scriptEngine() throws Throwable {
+        propEngineName = propEngineClass != null ? servlet.engine.getFactory().getEngineName() : propEngineName;
+        assertEquals(propEngineName, servlet.getEngineName());
+    }
+
+    @Test
+    public void test04_invokeScript() throws Throwable {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
@@ -54,7 +63,7 @@ public class ScriptProcessedServletTest {
     }
 
     @Test
-    public void test04_destroyScript() throws Throwable {
+    public void test05_destroyScript() throws Throwable {
         servlet.destroy();
         assertEquals("destroy-value", config.getInitParameter("destroy-parameter"));
     }

@@ -254,7 +254,8 @@
                         <configuration>
                             <skip>false</skip>
                             <systemPropertyVariables>
-                                <engine-name>rhino</engine-name>
+                                <shiroext-engine-class>not.exist.EngineClass</shiroext-engine-class>
+                                <engine-class>com.sun.phobos.script.javascript.RhinoScriptEngine</engine-class>
                                 <init-script-text>servletConfig.addInitParameter("init-parameter", "init-value")</init-script-text>
                                 <invoke-script-text>response.getOutputStream().print("text1")</invoke-script-text>
                                 <destroy-script-text>servletConfig.addInitParameter("destroy-parameter", "destroy-value")</destroy-script-text>
@@ -301,7 +302,8 @@
                         <configuration>
                             <skip>false</skip>
                             <systemPropertyVariables>
-                                <engine-name>rhino</engine-name>
+                                <shiroext-engine-class>not.exist.EngineClass</shiroext-engine-class>
+                                <engine-class>com.sun.phobos.script.javascript.RhinoScriptEngine</engine-class>
                                 <init-script-text>filterConfig.addInitParameter("init-parameter", "init-value")</init-script-text>
                                 <invoke-script-text>response.getOutputStream().print("text1")</invoke-script-text>
                                 <destroy-script-text>filterConfig.addInitParameter("destroy-parameter", "destroy-value")</destroy-script-text>
