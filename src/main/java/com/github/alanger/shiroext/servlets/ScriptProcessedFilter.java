@@ -74,7 +74,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
         try {
             if (isFilter) {
                 invocable.invokeFunction("doFilter", request, response, chain);
-            } else {
+            } else if (invokeScript != null) {
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("response", response, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("chain", chain, ScriptContext.ENGINE_SCOPE);

@@ -82,8 +82,11 @@ public class ScriptProcessedServlet extends HttpServlet {
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
 
+        engineName = getServletContext().getInitParameter(ENGINE_NAME) != null
+                ? getServletContext().getInitParameter(ENGINE_NAME)
+                : engineName;
         engineName = getInitParameter(ENGINE_NAME) != null ? getInitParameter(ENGINE_NAME) : engineName;
-        manager = new ScriptEngineManager();
+        manager = new ScriptEngineManager(getClass().getClassLoader());
         engine = manager.getEngineByName(engineName);
         if (engine == null)
             throw new ServletException("Script engine '" + engineName + "' is null");
@@ -118,7 +121,7 @@ public class ScriptProcessedServlet extends HttpServlet {
         try {
             if (isServlet) {
                 invocable.invokeFunction("service", request, response);
-            } else {
+            } else if (invokeScript != null) {
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("response", response, ScriptContext.ENGINE_SCOPE);
                 engine.eval(invokeScript);

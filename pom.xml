@@ -66,6 +66,8 @@
         <shiro.version>1.8.0</shiro.version>
         <commons.logging.version>1.2</commons.logging.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
+        <rhino.js.engine.version>1.7.10</rhino.js.engine.version>
+        <rhino.version>1.7.14</rhino.version>
         <logback.version>1.2.10</logback.version>
         <junit.jupiter.engine.version>5.8.2</junit.jupiter.engine.version>
         <mockito.version>4.3.1</mockito.version>
@@ -252,6 +254,7 @@
                         <configuration>
                             <skip>false</skip>
                             <systemPropertyVariables>
+                                <engine-name>rhino</engine-name>
                                 <init-script-text>servletConfig.addInitParameter("init-parameter", "init-value")</init-script-text>
                                 <invoke-script-text>response.getOutputStream().print("text1")</invoke-script-text>
                                 <destroy-script-text>servletConfig.addInitParameter("destroy-parameter", "destroy-value")</destroy-script-text>
@@ -269,6 +272,7 @@
                         <configuration>
                             <skip>false</skip>
                             <systemPropertyVariables>
+                                <shiroext-engine-name>rhino</shiroext-engine-name>
                                 <invoke-script-text>
                                     var config;
                                     function init(servletConfig) {
@@ -417,6 +421,18 @@
             <version>${javax.servlet.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>cat.inspiracio</groupId>
+            <artifactId>rhino-js-engine</artifactId>
+            <version>${rhino.js.engine.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mozilla</groupId>
+            <artifactId>rhino</artifactId>
+            <version>${rhino.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>

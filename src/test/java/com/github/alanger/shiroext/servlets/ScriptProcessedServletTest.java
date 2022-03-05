@@ -22,6 +22,8 @@ public class ScriptProcessedServletTest {
     public static void before() throws Throwable {
         config = new MockServletConfig();
         context = (MockServletContext) config.getServletContext();
+        context.addInitParameter("shiroext-engine-name", System.getProperty("shiroext-engine-name"));
+        config.addInitParameter("engine-name", System.getProperty("engine-name"));
         config.addInitParameter("init-script-text", System.getProperty("init-script-text"));
         config.addInitParameter("invoke-script-text", System.getProperty("invoke-script-text"));
         config.addInitParameter("destroy-script-text", System.getProperty("destroy-script-text"));
@@ -36,7 +38,12 @@ public class ScriptProcessedServletTest {
     }
 
     @Test
-    public void test02_invokeScript() throws Throwable {
+    public void test02_scriptEngine() throws Throwable {
+        assertEquals(System.getProperty("engine-name", "nashorn"), servlet.getEngineName());
+    }
+
+    @Test
+    public void test03_invokeScript() throws Throwable {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
@@ -47,7 +54,7 @@ public class ScriptProcessedServletTest {
     }
 
     @Test
-    public void test03_destroyScript() throws Throwable {
+    public void test04_destroyScript() throws Throwable {
         servlet.destroy();
         assertEquals("destroy-value", config.getInitParameter("destroy-parameter"));
     }
