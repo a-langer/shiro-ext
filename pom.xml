@@ -50,25 +50,26 @@
     </repositories>
 
     <properties>
-        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.plugin.version>3.8.0</maven.compiler.plugin.version>
-        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
+        <maven.compiler.plugin.version>3.10.0</maven.compiler.plugin.version>
+        <maven.jar.plugin.version>3.2.2</maven.jar.plugin.version>
         <maven.clean.plugin.version>3.1.0</maven.clean.plugin.version>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
-        <maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
-        <maven.surefire.plugin.version>3.0.0-M4</maven.surefire.plugin.version>
-        <formatter.maven.plugin.version>2.11.0</formatter.maven.plugin.version>
+        <maven.javadoc.plugin.version>3.3.2</maven.javadoc.plugin.version>
+        <maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
+        <formatter.maven.plugin.version>2.17.1</formatter.maven.plugin.version>
         <nexus.staging.maven.plugin.version>1.6.8</nexus.staging.maven.plugin.version>
-        <maven.gpg.plugin.version>1.6</maven.gpg.plugin.version>
+        <maven.gpg.plugin.version>3.0.1</maven.gpg.plugin.version>
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
-        <shiro.version>1.7.1</shiro.version>
+        <shiro.version>1.8.0</shiro.version>
         <commons.logging.version>1.2</commons.logging.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
-        <logback.version>1.2.3</logback.version>
-        <junit.jupiter.engine.version>5.6.2</junit.jupiter.engine.version>
-        <mockito.version>3.3.3</mockito.version>
-        <spring.test.version>5.3.14</spring.test.version>
+        <logback.version>1.2.10</logback.version>
+        <junit.jupiter.engine.version>5.8.2</junit.jupiter.engine.version>
+        <mockito.version>4.3.1</mockito.version>
+        <spring.test.version>5.3.16</spring.test.version>
         <embedded.ldap.junit.version>0.8.1</embedded.ldap.junit.version>
     </properties>
 
@@ -79,11 +80,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
                     <meminitial>64m</meminitial>
                     <maxmem>128m</maxmem>
-                    <encoding>${project.build.sourceEncoding}</encoding>
                     <optimize>true</optimize>
                     <compilerArgs>
                         <arg>-parameters</arg>
@@ -147,7 +145,7 @@
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
-                    <!-- mvn surefire:test@shiro-ldap-realm -Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword -->
+                    <!-- mvn clean test-compile surefire:test@shiro-ldap-realm -Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword -->
                     <execution>
                         <id>shiro-ldap-realm</id>
                         <goals>
@@ -291,7 +289,7 @@
                             </includes>
                         </configuration>
                     </execution>
-                    <!-- mvn surefire:test@mutable-request-wrapper -Dsurefire.skipAfterFailureCount=1 -->
+                    <!-- mvn clean test-compile surefire:test@mutable-request-wrapper -Dsurefire.skipAfterFailureCount=1 -->
                     <execution>
                         <id>mutable-request-wrapper</id>
                         <goals>
