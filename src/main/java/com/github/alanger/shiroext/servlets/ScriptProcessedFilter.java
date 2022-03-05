@@ -25,7 +25,6 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
 
     protected boolean isFilter = false;
     protected boolean forcedChain = false;
-    protected FilterConfig filterConfig;
 
     public boolean isFilter() {
         return isFilter;
@@ -44,22 +43,20 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
     }
 
     @Override
-    public void init(FilterConfig fc) throws ServletException {
-        filterConfig = fc;
-        super.init(new FilterServletConfig());
+    public void init(FilterConfig filterConfig) throws ServletException {
+        super.initPatameter(new FilterServletConfig(filterConfig));
+
         engine.getContext().setAttribute("filterConfig", filterConfig, ScriptContext.ENGINE_SCOPE);
-        forcedChain = fc.getInitParameter(FORCED_CHAIN) != null ? Boolean.valueOf(fc.getInitParameter(FORCED_CHAIN))
+        forcedChain = getInitParameter(FORCED_CHAIN) != null ? Boolean.valueOf(getInitParameter(FORCED_CHAIN))
                 : forcedChain;
-        isFilter = fc.getInitParameter(IS_FILTER) != null ? Boolean.valueOf(fc.getInitParameter(IS_FILTER)) : isFilter;
+        isFilter = getInitParameter(IS_FILTER) != null ? Boolean.valueOf(getInitParameter(IS_FILTER)) : isFilter;
 
         try {
             if (isFilter) {
-                if (invocable == null) {
-                    engine.eval(invokeScript);
-                    invocable = (Invocable) engine;
-                }
+                engine.eval(invokeScript);
+                invocable = (Invocable) engine;
                 invocable.invokeFunction("init", filterConfig);
-            } else if (initScript != null && isServlet) {
+            } else if (initScript != null) {
                 engine.eval(initScript);
             }
         } catch (NoSuchMethodException | ScriptException e) {
@@ -103,6 +100,12 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
     }
 
     class FilterServletConfig implements ServletConfig {
+        private final FilterConfig filterConfig;
+
+        public FilterServletConfig(FilterConfig filterConfig) {
+            this.filterConfig = filterConfig;
+        }
+
         @Override
         public String getServletName() {
             return filterConfig.getFilterName();

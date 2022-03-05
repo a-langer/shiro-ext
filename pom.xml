@@ -247,7 +247,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>script-processed</id>
+                        <id>script-servlet</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -265,7 +265,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>script-processed-servlet</id>
+                        <id>script-servlet-impl</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -290,6 +290,53 @@
                             </systemPropertyVariables>
                             <includes>
                                 <include>**/ScriptProcessedServletTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>script-filter</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <systemPropertyVariables>
+                                <engine-name>rhino</engine-name>
+                                <init-script-text>filterConfig.addInitParameter("init-parameter", "init-value")</init-script-text>
+                                <invoke-script-text>response.getOutputStream().print("text1")</invoke-script-text>
+                                <destroy-script-text>filterConfig.addInitParameter("destroy-parameter", "destroy-value")</destroy-script-text>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/ScriptProcessedFilterTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>script-filter-impl</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <systemPropertyVariables>
+                                <shiroext-engine-name>rhino</shiroext-engine-name>
+                                <invoke-script-text>
+                                    var config;
+                                    function init(filterConfig) {
+                                        filterConfig.addInitParameter("init-parameter", "init-value");
+                                        config = filterConfig;
+                                    }
+                                    function doFilter(request, response, chain) {
+                                        response.getOutputStream().print("text1");
+                                    }
+                                    function destroy() {
+                                        config.addInitParameter("destroy-parameter", "destroy-value");
+                                    }
+                                </invoke-script-text>
+                                <is-filter>true</is-filter>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/ScriptProcessedFilterTest.java</include>
                             </includes>
                         </configuration>
                     </execution>

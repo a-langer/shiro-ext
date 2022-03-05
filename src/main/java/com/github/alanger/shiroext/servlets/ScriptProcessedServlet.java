@@ -78,8 +78,7 @@ public class ScriptProcessedServlet extends HttpServlet {
         this.isServlet = isServlet;
     }
 
-    @Override
-    public void init(ServletConfig config) throws ServletException {
+    protected void initPatameter(ServletConfig config) throws ServletException {
         super.init(config);
 
         engineName = getServletContext().getInitParameter(ENGINE_NAME) != null
@@ -99,6 +98,11 @@ public class ScriptProcessedServlet extends HttpServlet {
         invokeScript = getInitParameter(INVOKE_SCRIPT) != null ? getInitParameter(INVOKE_SCRIPT) : invokeScript;
         destroyScript = getInitParameter(DESTROY_SCRIPT) != null ? getInitParameter(DESTROY_SCRIPT) : destroyScript;
         isServlet = getInitParameter(IS_SERVLET) != null ? Boolean.valueOf(getInitParameter(IS_SERVLET)) : isServlet;
+    }
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        initPatameter(config);
 
         try {
             if (isServlet) {

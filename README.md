@@ -293,7 +293,7 @@ See Apache Shiro [documentation][3] and this examples:
 
 ## Related repositories
 
-* [WAFFLE][8] - Windows Authentication Framework supporting Negotiate, NTLM and Kerberos.
+* [buji-pac4j][8] - Security library for Shiro web applications which supports OAuth, SAML, CAS, OpenID, Google App Engine, Kerberos, JWT and more.
 * [UrlRewriteFilter][4] - Java Web Filter for any J2EE compliant web application server.
 * [WebDAV VFS gate][5] - WebDAV gateway for accessing to different file systems.
 
@@ -304,4 +304,4 @@ See Apache Shiro [documentation][3] and this examples:
 [5]: https://github.com/a-langer/webdav-vfs-gate
 [6]: https://www.jenkins.io/
 [7]: https://docs.oracle.com/javase/10/nashorn/introduction.htm#JSNUG136
-[8]: https://github.com/Waffle/waffle
+[8]: https://github.com/bujiio/buji-pac4j
