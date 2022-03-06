@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.apache.shiro.codec.Base64;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -108,4 +109,37 @@ public class FormAuthcFilterTest extends AbstractShiroFilters {
         assertNull(response.getHeader("Location"));
         assertNotNull(request.getAttribute("shiroLoginFailure"));
     }
+
+    @Test
+    public void test07_LoginBase64() throws Throwable {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        request.setMethod("POST");
+        request.setPathInfo("/base64");
+        request.setParameter("j_username", Base64.encodeToString(admin.getBytes()));
+        request.setParameter("j_password", Base64.encodeToString(admin.getBytes()));
+        filter.doFilter(request, response, chain);
+        log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
+                response.getHeader("Location"), response.getHeader("Set-Cookie"), response.getContentAsString());
+        assertEquals(302, response.getStatus());
+        assertEquals("/loginSuccess", response.getHeader("Location"));
+    }
+
+    @Test
+    public void test08_LoginBase64Failure() throws Throwable {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        request.setMethod("POST");
+        request.setPathInfo("/base64");
+        request.setParameter("j_username", admin);
+        request.setParameter("j_password", admin);
+        filter.doFilter(request, response, chain);
+        log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
+                response.getHeader("Location"), response.getHeader("Set-Cookie"), response.getContentAsString());
+        assertEquals(401, response.getStatus());
+        assertEquals(false, response.isCommitted());
+        assertNull(response.getHeader("Location"));
+        assertNotNull(request.getAttribute("shiroLoginFailure"));
+    }
+
 }

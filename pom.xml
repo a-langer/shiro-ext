@@ -196,6 +196,34 @@
                                 securityManager.authorizer = $realmAuthorizer
                                 securityManager.realms = $iniRealm
 
+                                ## [filters]
+                                authc      = com.github.alanger.shiroext.web.FormAuthcFilter
+                                authc.usernameParam = j_username
+                                authc.passwordParam = j_password
+                                authc.loginUrl      = /login
+                                authc.successUrl    = /loginSuccess
+
+                                authcBase64 = com.github.alanger.shiroext.web.FormAuthcFilter
+                                authcBase64.usernameParam = j_username
+                                authcBase64.passwordParam = j_password
+                                authcBase64.loginUrl      = /base64
+                                authcBase64.successUrl    = /loginSuccess
+                                authcBase64.base64        = true
+
+                                basic       = com.github.alanger.shiroext.web.BasicAuthcFilter
+                                basicSilent = com.github.alanger.shiroext.web.BasicAuthcFilter
+                                basicSilent.silent = true
+                                
+                                logout     = com.github.alanger.shiroext.web.LogoutAuthcFilter
+                                roles      = com.github.alanger.shiroext.web.RolesAuthzFilter
+                                roles.unauthorizedUrl = /loginError
+                                roles.loginUrl        = /login
+                                role       = com.github.alanger.shiroext.web.RoleAuthzFilter
+                                perms      = com.github.alanger.shiroext.web.PermissionsAuthzFilter
+                                perms.unauthorizedUrl = /loginError
+                                perms.loginUrl        = /login
+                                perm       = com.github.alanger.shiroext.web.PermissionAuthzFilter
+
                                 [users]
                                 admin = admin,admin,user,AppAdmin
                                 user = user,user,AppUser
@@ -204,29 +232,11 @@
                                 admin = *
                                 user = app:*
 
-                                [filters]
-                                authc      = com.github.alanger.shiroext.web.FormAuthcFilter
-                                authc.usernameParam       = j_username
-                                authc.passwordParam       = j_password
-                                authc.loginUrl            = /login
-                                authc.successUrl          = /loginSuccess
-                                basic      = com.github.alanger.shiroext.web.BasicAuthcFilter
-                                basicSilent = com.github.alanger.shiroext.web.BasicAuthcFilter
-                                basicSilent.silent = true
-                                logout     = com.github.alanger.shiroext.web.LogoutAuthcFilter
-                                roles      = com.github.alanger.shiroext.web.RolesAuthzFilter
-                                roles.unauthorizedUrl     = /loginError
-                                roles.loginUrl            = /login
-                                role       = com.github.alanger.shiroext.web.RoleAuthzFilter
-                                perms      = com.github.alanger.shiroext.web.PermissionsAuthzFilter
-                                perms.unauthorizedUrl     = /loginError
-                                perms.loginUrl            = /login
-                                perm       = com.github.alanger.shiroext.web.PermissionAuthzFilter
-
                                 [urls]
                                 /basic     = basic
                                 /basicSilent = basicSilent, authc
                                 /login     = authc
+                                /base64    = authcBase64
                                 /logout    = logout
                                 /rolesOnly = roles[admin,user]
                                 /roles     = basic, roles[admin,user]
