@@ -39,7 +39,7 @@ public class Pac4jPrincipalName implements Principal, Serializable {
     }
 
     public UserProfile getProfile() {
-        return flatIntoOneProfile(this.profiles).orElseThrow();
+        return flatIntoOneProfile(this.profiles).get();
     }
 
     // Compatibility with buji-pac4j 4.1.1
