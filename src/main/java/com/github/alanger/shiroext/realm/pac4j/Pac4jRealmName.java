@@ -22,7 +22,8 @@ public class Pac4jRealmName extends Pac4jRealm {
             throws AuthenticationException {
 
         final Pac4jToken token = (Pac4jToken) authenticationToken;
-        final List<UserProfile> profiles = token.getProfiles();
+        // Compatibility with buji-pac4j 4.1.1
+        final List<? extends UserProfile> profiles = token.getProfiles();
 
         final Pac4jPrincipalName principal = new Pac4jPrincipalName(profiles, getPrincipalNameAttribute());
         final PrincipalCollection principalCollection = new SimplePrincipalCollection(principal, getName());
@@ -35,7 +36,8 @@ public class Pac4jRealmName extends Pac4jRealm {
         final Set<String> permissions = new HashSet<>();
         final Pac4jPrincipalName principal = principals.oneByType(Pac4jPrincipalName.class);
         if (principal != null) {
-            final List<UserProfile> profiles = principal.getProfiles();
+            // Compatibility with buji-pac4j 4.1.1
+            final List<? extends UserProfile> profiles = principal.getProfiles();
             for (final UserProfile profile : profiles) {
                 if (profile != null) {
                     roles.addAll(profile.getRoles());

@@ -65,7 +65,7 @@
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
         <shiro.version>1.8.0</shiro.version>
         <commons.logging.version>1.2</commons.logging.version>
-        <buji.pac4j.version>6.1.0</buji.pac4j.version>
+        <buji.pac4j.version>4.1.1</buji.pac4j.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <rhino.js.engine.version>1.7.10</rhino.js.engine.version>
         <rhino.version>1.7.14</rhino.version>
