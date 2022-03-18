@@ -16,26 +16,28 @@ public class Pac4jPrincipalName implements Principal, Serializable {
 
     private final String principalNameAttribute;
     private final List<? extends UserProfile> profiles;
-
-    private boolean byName = true;
+    private final boolean byName;
 
     public Pac4jPrincipalName(final List<? extends UserProfile> profiles) {
+        this(profiles, null, false);
+    }
+
+    public Pac4jPrincipalName(final List<? extends UserProfile> profiles, String principalNameAttribute, boolean byName) {
         this.profiles = profiles;
-        this.principalNameAttribute = null;
+        this.principalNameAttribute = CommonHelper.isBlank(principalNameAttribute) ? null
+                : principalNameAttribute.trim();
+        this.byName = byName;
     }
 
     public Pac4jPrincipalName(final List<? extends UserProfile> profiles, String principalNameAttribute) {
         this.profiles = profiles;
         this.principalNameAttribute = CommonHelper.isBlank(principalNameAttribute) ? null
                 : principalNameAttribute.trim();
+        this.byName = !CommonHelper.isBlank(principalNameAttribute);
     }
 
     public boolean isByName() {
         return byName;
-    }
-
-    public void setByName(boolean byname) {
-        this.byName = byname;
     }
 
     public UserProfile getProfile() {
