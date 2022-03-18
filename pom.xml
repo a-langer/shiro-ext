@@ -65,6 +65,7 @@
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
         <shiro.version>1.8.0</shiro.version>
         <commons.logging.version>1.2</commons.logging.version>
+        <buji.pac4j.version>6.1.0</buji.pac4j.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <rhino.js.engine.version>1.7.10</rhino.js.engine.version>
         <rhino.version>1.7.14</rhino.version>
@@ -96,7 +97,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jar.plugin.version}</version>
                 <configuration>
-                    <excludePomFiles>true</excludePomFiles>
+                    <excludePomFiles>false</excludePomFiles>
                     <archive>
                         <manifestEntries>
                             <version>${project.version}</version>
@@ -110,7 +111,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven.assembly.plugin.version}</version>
                 <configuration>
-                    <excludePomFiles>true</excludePomFiles>
+                    <excludePomFiles>false</excludePomFiles>
                     <archive>
                         <manifestEntries>
                             <version>${project.version}</version>
@@ -472,6 +473,13 @@
             <artifactId>commons-logging</artifactId>
             <version>${commons.logging.version}</version>
             <scope>compile</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>io.buji</groupId>
+            <artifactId>buji-pac4j</artifactId>
+            <version>${buji.pac4j.version}</version>
+            <scope>provided</scope>
             <optional>true</optional>
         </dependency>
         <dependency>
