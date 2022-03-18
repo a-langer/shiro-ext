@@ -87,10 +87,12 @@ public class Pac4jPrincipalName implements Principal, Serializable {
 
     @Override
     public String toString() {
-        if (isByName())
-            return getName();
-        else
+        if (isByName()) {
+            String name = getName();
+            return name != null ? name : getProfile().getId();
+        } else {
             return CommonHelper.toNiceString(this.getClass(), "profiles", getProfiles());
+        } 
     }
 
 }
