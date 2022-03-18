@@ -255,7 +255,7 @@ This project implement extension for security framework [Apache Shiro][1].
     </filter-mapping>
     ```
 
-* [RedirectView](src/main/java/org/apache/shiro/web/util/RedirectView.java) - overrides original Shiro class (only in jar with all dependencies `shiro-ext-{version}-all.jar`) for using code `303` in redirects if property specified:
+* [RedirectView](src/main/java/org/apache/shiro/web/util/RedirectView.java) - overrides original Shiro class (only in jar without all dependencies `shiro-ext-{version}.jar`) for using code `303` in redirects if property specified:
 
     ```properties
     -Dorg.apache.shiro.web.util.RedirectView.ignoreHttp10Compatible=true  
