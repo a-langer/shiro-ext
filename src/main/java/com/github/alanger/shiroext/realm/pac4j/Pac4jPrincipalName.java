@@ -82,10 +82,7 @@ public class Pac4jPrincipalName implements Principal, Serializable {
             return profile.getId();
         }
         final Object attrValue = profile.getAttribute(principalNameAttribute);
-        if (null != attrValue && attrValue.getClass().isArray()) {
-            return String.valueOf(((Object[])attrValue)[0]);
-        }
-        return (null == attrValue) ? null : String.valueOf(attrValue);
+        return (null == attrValue) ? null : String.valueOf(attrValue).replaceAll("(^\\[)|(\\]$)", "");
     }
 
     @Override
