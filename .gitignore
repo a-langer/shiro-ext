@@ -6,6 +6,7 @@
 .factorypath
 target
 nbproject
+*_Old.java
 old
 old/*
 *.jks
