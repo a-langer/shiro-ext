@@ -36,7 +36,7 @@ public class ScriptProcessedServlet extends HttpServlet {
     protected String invokeScript = null;
     protected String destroyScript = null;
     protected String classScript = null;
-    protected boolean isClass = false;
+
     protected boolean initialized = false;
 
     protected Invocable invocable;
@@ -74,12 +74,20 @@ public class ScriptProcessedServlet extends HttpServlet {
         this.destroyScript = destroyScript;
     }
 
-    public boolean isClass() {
-        return isClass;
+    public String getClassScript() {
+        return classScript;
     }
 
-    public void setClass(boolean isClass) {
-        this.isClass = isClass;
+    public void setClassScript(String classScript) {
+        this.classScript = classScript;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
     }
 
     protected static String getInitParameter(ServletConfig config, String name, String defValue) {
@@ -118,7 +126,6 @@ public class ScriptProcessedServlet extends HttpServlet {
         invokeScript = getInitParameter(INVOKE_SCRIPT) != null ? getInitParameter(INVOKE_SCRIPT) : invokeScript;
         destroyScript = getInitParameter(DESTROY_SCRIPT) != null ? getInitParameter(DESTROY_SCRIPT) : destroyScript;
         classScript = getInitParameter(CLASS_SCRIPT) != null ? getInitParameter(CLASS_SCRIPT) : classScript;
-        isClass = classScript != null;
     }
 
     @Override
@@ -126,7 +133,7 @@ public class ScriptProcessedServlet extends HttpServlet {
         initPatameter(config);
 
         try {
-            if (isClass) {
+            if (classScript != null) {
                 engine.eval(classScript);
                 invocable = (Invocable) engine;
                 invocable.invokeFunction("init", getServletConfig());
@@ -144,7 +151,7 @@ public class ScriptProcessedServlet extends HttpServlet {
     protected void service(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            if (isClass) {
+            if (classScript != null) {
                 invocable.invokeFunction("service", request, response);
             } else if (invokeScript != null) {
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
@@ -160,7 +167,7 @@ public class ScriptProcessedServlet extends HttpServlet {
     @Override
     public void destroy() {
         try {
-            if (isClass && invocable != null) {
+            if (classScript != null && invocable != null) {
                 invocable.invokeFunction("destroy");
             } else if (destroyScript != null) {
                 engine.eval(destroyScript);

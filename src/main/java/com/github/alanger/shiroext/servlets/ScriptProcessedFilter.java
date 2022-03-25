@@ -41,13 +41,14 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
                 : forcedChain;
 
         try {
-            if (isClass) {
+            if (classScript != null) {
                 engine.eval(classScript);
                 invocable = (Invocable) engine;
                 invocable.invokeFunction("init", filterConfig);
             } else if (initScript != null) {
                 engine.eval(initScript);
             }
+            initialized = true;
         } catch (NoSuchMethodException | ScriptException e) {
             logger.log(Level.SEVERE, "Script error during filter initialization", e);
             throw new ServletException(e);
@@ -58,7 +59,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         try {
-            if (isClass) {
+            if (classScript != null) {
                 invocable.invokeFunction("doFilter", request, response, chain);
             } else if (invokeScript != null) {
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
@@ -78,7 +79,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
     @Override
     public void destroy() {
         try {
-            if (isClass && invocable != null) {
+            if (classScript != null && invocable != null) {
                 invocable.invokeFunction("destroy");
             } else if (destroyScript != null) {
                 engine.eval(destroyScript);
