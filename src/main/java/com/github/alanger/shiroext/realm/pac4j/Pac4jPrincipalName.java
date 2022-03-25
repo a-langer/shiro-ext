@@ -17,7 +17,7 @@ public class Pac4jPrincipalName implements Principal, Serializable {
     private final String principalNameAttribute;
     private final List<? extends UserProfile> profiles;
     private final boolean byName;
-    private String userPrefix;
+    private String userPrefix = "";
 
     public String getUserPrefix() {
         return userPrefix;

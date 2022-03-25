@@ -20,7 +20,7 @@ public class Pac4jRealmName extends Pac4jRealm {
 
     private String commonRole = null;
     private String commonPermission = null;
-    private String userPrefix;
+    private String userPrefix = "";
 
     public String getCommonRole() {
         return commonRole;
