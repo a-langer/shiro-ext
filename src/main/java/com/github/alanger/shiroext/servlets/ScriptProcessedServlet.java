@@ -20,7 +20,7 @@ public class ScriptProcessedServlet extends HttpServlet {
 
     private static final long serialVersionUID = 1L;
 
-    protected final Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    protected Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
 
     protected static final String CTX_PREFIX = "shiroext-";
     protected static final String ENGINE_NAME = "engine-name";
@@ -29,6 +29,7 @@ public class ScriptProcessedServlet extends HttpServlet {
     protected static final String INVOKE_SCRIPT = "invoke-script-text";
     protected static final String DESTROY_SCRIPT = "destroy-script-text";
     protected static final String CLASS_SCRIPT = "class-script-text";
+    protected static final String LOGGER_NAME = "logger-name";
 
     protected String engineName = "nashorn";
     protected String initScript = null;
@@ -110,13 +111,14 @@ public class ScriptProcessedServlet extends HttpServlet {
 
         engine.getContext().setAttribute("servletConfig", config, ScriptContext.ENGINE_SCOPE);
         engine.getContext().setAttribute("servletContext", config.getServletContext(), ScriptContext.ENGINE_SCOPE);
+        logger = getInitParameter(LOGGER_NAME) != null ? Logger.getLogger(getInitParameter(LOGGER_NAME)) : logger;
         engine.getContext().setAttribute("logger", logger, ScriptContext.ENGINE_SCOPE);
 
         initScript = getInitParameter(INIT_SCRIPT) != null ? getInitParameter(INIT_SCRIPT) : initScript;
         invokeScript = getInitParameter(INVOKE_SCRIPT) != null ? getInitParameter(INVOKE_SCRIPT) : invokeScript;
         destroyScript = getInitParameter(DESTROY_SCRIPT) != null ? getInitParameter(DESTROY_SCRIPT) : destroyScript;
         classScript = getInitParameter(CLASS_SCRIPT) != null ? getInitParameter(CLASS_SCRIPT) : classScript;
-        isClass = classScript != null ? true : false;
+        isClass = classScript != null;
     }
 
     @Override
