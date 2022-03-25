@@ -29,7 +29,7 @@ public class ScriptProcessedServletTest extends ScriptProcessed {
         config.addInitParameter(INIT_SCRIPT, System.getProperty(INIT_SCRIPT));
         config.addInitParameter(INVOKE_SCRIPT, System.getProperty(INVOKE_SCRIPT));
         config.addInitParameter(DESTROY_SCRIPT, System.getProperty(DESTROY_SCRIPT));
-        config.addInitParameter(IS_SERVLET, System.getProperty(IS_SERVLET, "false"));
+        config.addInitParameter(CLASS_SCRIPT, System.getProperty(CLASS_SCRIPT));
         servlet = new ScriptProcessedServlet();
         servlet.init(config);
     }

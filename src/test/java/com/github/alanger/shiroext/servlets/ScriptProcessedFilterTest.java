@@ -30,7 +30,7 @@ public class ScriptProcessedFilterTest extends ScriptProcessed {
         config.addInitParameter(INIT_SCRIPT, System.getProperty(INIT_SCRIPT));
         config.addInitParameter(INVOKE_SCRIPT, System.getProperty(INVOKE_SCRIPT));
         config.addInitParameter(DESTROY_SCRIPT, System.getProperty(DESTROY_SCRIPT));
-        config.addInitParameter(IS_FILTER, System.getProperty(IS_FILTER, "false"));
+        config.addInitParameter(CLASS_SCRIPT, System.getProperty(CLASS_SCRIPT));
         filter = new ScriptProcessedFilter();
         filter.init(config);
     }

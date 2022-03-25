@@ -286,7 +286,7 @@
                             <skip>false</skip>
                             <systemPropertyVariables>
                                 <shiroext-engine-name>rhino</shiroext-engine-name>
-                                <invoke-script-text>
+                                <class-script-text>
                                     var config;
                                     function init(servletConfig) {
                                         servletConfig.addInitParameter("init-parameter", "init-value");
@@ -298,8 +298,7 @@
                                     function destroy() {
                                         config.addInitParameter("destroy-parameter", "destroy-value");
                                     }
-                                </invoke-script-text>
-                                <is-servlet>true</is-servlet>
+                                </class-script-text>
                             </systemPropertyVariables>
                             <includes>
                                 <include>**/ScriptProcessedServletTest.java</include>
@@ -334,7 +333,7 @@
                             <skip>false</skip>
                             <systemPropertyVariables>
                                 <shiroext-engine-name>rhino</shiroext-engine-name>
-                                <invoke-script-text>
+                                <class-script-text>
                                     var config;
                                     function init(filterConfig) {
                                         filterConfig.addInitParameter("init-parameter", "init-value");
@@ -346,8 +345,7 @@
                                     function destroy() {
                                         config.addInitParameter("destroy-parameter", "destroy-value");
                                     }
-                                </invoke-script-text>
-                                <is-filter>true</is-filter>
+                                </class-script-text>
                             </systemPropertyVariables>
                             <includes>
                                 <include>**/ScriptProcessedFilterTest.java</include>

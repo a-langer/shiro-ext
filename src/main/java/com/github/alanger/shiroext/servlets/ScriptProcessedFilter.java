@@ -20,19 +20,9 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
 
     private static final long serialVersionUID = 1L;
 
-    protected static final String IS_FILTER = "is-filter";
     protected static final String FORCED_CHAIN = "forced-chain";
 
-    protected boolean isFilter = false;
     protected boolean forcedChain = false;
-
-    public boolean isFilter() {
-        return isFilter;
-    }
-
-    public void setFilter(boolean isFilter) {
-        this.isFilter = isFilter;
-    }
 
     public boolean isForcedChain() {
         return forcedChain;
@@ -49,11 +39,10 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
         engine.getContext().setAttribute("filterConfig", filterConfig, ScriptContext.ENGINE_SCOPE);
         forcedChain = getInitParameter(FORCED_CHAIN) != null ? Boolean.valueOf(getInitParameter(FORCED_CHAIN))
                 : forcedChain;
-        isFilter = getInitParameter(IS_FILTER) != null ? Boolean.valueOf(getInitParameter(IS_FILTER)) : isFilter;
 
         try {
-            if (isFilter) {
-                engine.eval(invokeScript);
+            if (isClass) {
+                engine.eval(classScript);
                 invocable = (Invocable) engine;
                 invocable.invokeFunction("init", filterConfig);
             } else if (initScript != null) {
@@ -69,7 +58,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         try {
-            if (isFilter) {
+            if (isClass) {
                 invocable.invokeFunction("doFilter", request, response, chain);
             } else if (invokeScript != null) {
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
@@ -89,7 +78,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
     @Override
     public void destroy() {
         try {
-            if (isFilter && invocable != null) {
+            if (isClass && invocable != null) {
                 invocable.invokeFunction("destroy");
             } else if (destroyScript != null) {
                 engine.eval(destroyScript);
