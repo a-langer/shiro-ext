@@ -17,6 +17,15 @@ public class Pac4jPrincipalName implements Principal, Serializable {
     private final String principalNameAttribute;
     private final List<? extends UserProfile> profiles;
     private final boolean byName;
+    private String userPrefix;
+
+    public String getUserPrefix() {
+        return userPrefix;
+    }
+
+    public void setUserPrefix(String userPrefix) {
+        this.userPrefix = userPrefix;
+    }
 
     public Pac4jPrincipalName(final List<? extends UserProfile> profiles) {
         this(profiles, null, false);
@@ -82,14 +91,14 @@ public class Pac4jPrincipalName implements Principal, Serializable {
             return profile.getId();
         }
         final Object attrValue = profile.getAttribute(principalNameAttribute);
-        return (null == attrValue) ? null : String.valueOf(attrValue).replaceAll("(^\\[)|(\\]$)", "");
+        return (null == attrValue) ? null : getUserPrefix() + String.valueOf(attrValue).replaceAll("(^\\[)|(\\]$)", "");
     }
 
     @Override
     public String toString() {
         if (isByName()) {
             String name = getName();
-            return name != null ? name : getProfile().getId();
+            return name != null ? name : getUserPrefix() + getProfile().getId();
         } else {
             return CommonHelper.toNiceString(this.getClass(), "profiles", getProfiles());
         } 

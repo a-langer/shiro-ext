@@ -10,12 +10,41 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
+import org.apache.shiro.util.StringUtils;
 import org.pac4j.core.profile.UserProfile;
 
 import java.util.*;
 
 // See https://github.com/bujiio/buji-pac4j/blob/master/src/main/java/io/buji/pac4j/realm/Pac4jRealm.java
 public class Pac4jRealmName extends Pac4jRealm {
+
+    private String commonRole = null;
+    private String commonPermission = null;
+    private String userPrefix;
+
+    public String getCommonRole() {
+        return commonRole;
+    }
+
+    public void setCommonRole(String commonRole) {
+        this.commonRole = commonRole;
+    }
+
+    public String getCommonPermission() {
+        return commonPermission;
+    }
+
+    public void setCommonPermission(String commonPermission) {
+        this.commonPermission = commonPermission;
+    }
+
+    public String getUserPrefix() {
+        return userPrefix;
+    }
+
+    public void setUserPrefix(String userPrefix) {
+        this.userPrefix = userPrefix;
+    }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(final AuthenticationToken authenticationToken)
@@ -26,6 +55,7 @@ public class Pac4jRealmName extends Pac4jRealm {
         final List<? extends UserProfile> profiles = token.getProfiles();
 
         final Pac4jPrincipalName principal = new Pac4jPrincipalName(profiles, getPrincipalNameAttribute());
+        principal.setUserPrefix(getUserPrefix());
         final PrincipalCollection principalCollection = new SimplePrincipalCollection(principal, getName());
         return new SimpleAuthenticationInfo(principalCollection, profiles.hashCode());
     }
@@ -44,6 +74,12 @@ public class Pac4jRealmName extends Pac4jRealm {
                     permissions.addAll(profile.getPermissions());
                 }
             }
+
+            if (StringUtils.hasLength(commonRole))
+                roles.addAll(Arrays.asList(commonRole.replace(" ", "").split(",")));
+    
+            if (StringUtils.hasLength(commonPermission))
+                permissions.addAll(Arrays.asList(commonPermission.replace(" ", "").split(",")));
         }
 
         final SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
