@@ -1,5 +1,7 @@
 package com.github.alanger.shiroext.realm.pac4j;
 
+import static com.github.alanger.shiroext.realm.RealmUtils.asList;
+
 import io.buji.pac4j.realm.Pac4jRealm;
 import io.buji.pac4j.token.Pac4jToken;
 import org.apache.shiro.authc.AuthenticationException;
@@ -10,7 +12,6 @@ import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.SimplePrincipalCollection;
-import org.apache.shiro.util.StringUtils;
 import org.pac4j.core.profile.UserProfile;
 
 import java.util.*;
@@ -66,20 +67,20 @@ public class Pac4jRealmName extends Pac4jRealm {
         final Set<String> permissions = new HashSet<>();
         final Pac4jPrincipalName principal = principals.oneByType(Pac4jPrincipalName.class);
         if (principal != null) {
+            roles.addAll(asList(commonRole));
+            permissions.addAll(asList(commonPermission));
+
             // Compatibility with buji-pac4j 4.1.1
             final List<? extends UserProfile> profiles = principal.getProfiles();
             for (final UserProfile profile : profiles) {
                 if (profile != null) {
                     roles.addAll(profile.getRoles());
+                    profile.addRoles(asList(commonRole));
+
                     permissions.addAll(profile.getPermissions());
+                    profile.addPermissions(asList(commonPermission));
                 }
             }
-
-            if (StringUtils.hasLength(commonRole))
-                roles.addAll(Arrays.asList(commonRole.replace(" ", "").split(",")));
-    
-            if (StringUtils.hasLength(commonPermission))
-                permissions.addAll(Arrays.asList(commonPermission.replace(" ", "").split(",")));
         }
 
         final SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();

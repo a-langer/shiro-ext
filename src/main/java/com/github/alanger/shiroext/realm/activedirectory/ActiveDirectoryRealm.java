@@ -1,6 +1,7 @@
 package com.github.alanger.shiroext.realm.activedirectory;
 
 import static java.text.MessageFormat.format;
+import static com.github.alanger.shiroext.realm.RealmUtils.asList;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -125,6 +126,16 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
 
     public void setCommonRole(String commonRole) {
         this.commonRole = commonRole;
+    }
+
+    protected String commonPermission = null;
+
+    public String getCommonPermission() {
+        return commonPermission;
+    }
+
+    public void setCommonPermission(String commonPermission) {
+        this.commonPermission = commonPermission;
     }
 
     protected String roleBase = "";
@@ -449,11 +460,10 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             LdapUtils.closeContext(ldapContext);
         }
 
-        return buildAuthorizationInfo(roleNames);
-    }
-
-    private final AuthorizationInfo buildAuthorizationInfo(Set<String> roleNames) {
-        return new SimpleAuthorizationInfo(roleNames);
+        final SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+        simpleAuthorizationInfo.addRoles(roleNames);
+        simpleAuthorizationInfo.addStringPermissions(asList(commonPermission));
+        return simpleAuthorizationInfo;
     }
 
     // Find roles by group in ldap
@@ -467,8 +477,7 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             return rolesForGroups;
         }
 
-        if (StringUtils.hasLength(commonRole))
-            rolesForGroups.add(commonRole);
+        rolesForGroups.addAll(asList(commonRole));
 
         Map<String, Collection<String>> attrCollection = getAttributesForUser(username, ldapContext);
         Collection<String> groupNames = attrCollection.get(roleNameAttribute); // memberOf
