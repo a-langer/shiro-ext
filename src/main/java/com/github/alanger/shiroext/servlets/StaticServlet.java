@@ -55,6 +55,8 @@ public class StaticServlet extends HttpServlet implements ISilent {
 
     public static final String DIR_KEY = "static-root";
     public static final String SHOW_DIR_KEY = "static-show-content";
+    public static final String PATH_INFO_KEY = "static-path-info";
+    public static final String SILENT_KEY = "static-silent";
 
     private String rootDir = DEFAULT_DIR;
 
@@ -75,16 +77,6 @@ public class StaticServlet extends HttpServlet implements ISilent {
         this.showContent = showContent;
     }
 
-    private boolean silent = false;
-
-    public boolean isSilent() {
-        return silent;
-    }
-
-    public void setSilent(boolean silent) {
-        this.silent = silent;
-    }
-
     private String pathInfo;
 
     public String getPathInfo() {
@@ -93,6 +85,16 @@ public class StaticServlet extends HttpServlet implements ISilent {
 
     public void setPathInfo(String pathInfo) {
         this.pathInfo = pathInfo;
+    }
+
+    private boolean silent = false;
+
+    public boolean isSilent() {
+        return silent;
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 
     public interface StaticResource {
@@ -114,6 +116,9 @@ public class StaticServlet extends HttpServlet implements ISilent {
             rootDir = getServletContext().getRealPath(DEFAULT_DIR);
         showContent = getInitParameter(SHOW_DIR_KEY) != null ? Boolean.valueOf(getInitParameter(SHOW_DIR_KEY))
                 : isShowContent();
+        pathInfo = getInitParameter(PATH_INFO_KEY) != null ? getInitParameter(PATH_INFO_KEY) : getPathInfo();
+        silent = getInitParameter(SILENT_KEY) != null ? Boolean.valueOf(getInitParameter(SILENT_KEY))
+                : isSilent();
     }
 
     @Override
@@ -363,7 +368,6 @@ public class StaticServlet extends HttpServlet implements ISilent {
                     sb.append("<td><tt>Folder</tt></td>");
                 } else {
                     sb.append("<td><tt>").append(renderSize(subFile.length())).append("</tt></td>");
-                    ;
                 }
 
                 // MIME type
