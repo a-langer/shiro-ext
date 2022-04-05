@@ -13,6 +13,15 @@ public class Utils {
         return (xhrHeader != null && xhrHeader.equals("XMLHttpRequest"));
     }
 
+    public static String getRequestURI(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        String ctx = request.getContextPath();
+        if (path.startsWith(ctx)) {
+            path = path.substring(ctx.length());
+        }
+        return path;
+    }
+
     public static String normalizePath(String path) {
         if (path != null) {
             path = path.replace("\\\\", "/");

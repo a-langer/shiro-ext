@@ -1,6 +1,7 @@
 package com.github.alanger.shiroext.servlets;
 
 import static com.github.alanger.shiroext.web.Utils.normalizePath;
+import static com.github.alanger.shiroext.web.Utils.getRequestURI;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -201,7 +202,10 @@ public class StaticServlet extends HttpServlet implements ISilent {
     private StaticResource getStaticResource(String root, HttpServletRequest request)
             throws IllegalArgumentException {
 
-        final String pathInfo = getPathInfo() != null ? getPathInfo() : request.getPathInfo();
+        String pathInfo = getPathInfo() != null ? getPathInfo() : request.getPathInfo();
+        if (pathInfo == null)
+            pathInfo = getRequestURI(request);
+        
         if (pathInfo == null || pathInfo.isEmpty()) {
             throw new IllegalArgumentException("pathInfo is null");
         }
