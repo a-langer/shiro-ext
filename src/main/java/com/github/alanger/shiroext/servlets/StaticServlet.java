@@ -110,6 +110,13 @@ public class StaticServlet extends HttpServlet implements ISilent {
         public String getContentType();
     }
 
+    private String getPath(HttpServletRequest request) {
+        String pathInfo = getPathInfo() != null ? getPathInfo() : request.getPathInfo();
+        if (pathInfo == null)
+            pathInfo = getRequestURI(request);
+        return pathInfo;
+    }
+
     @Override
     public void init() throws ServletException {
         rootDir = normalizePath(getInitParameter(DIR_KEY) != null ? getInitParameter(DIR_KEY) : getRootDir());
@@ -155,10 +162,12 @@ public class StaticServlet extends HttpServlet implements ISilent {
         try {
             resource = getStaticResource(rootDir, request);
         } catch (IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            if (!isSilent() && !response.isCommitted()) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request, for static resource "
-                        + request.getMethod().toUpperCase() + ":" + request.getPathInfo() + " , error: " + e);
+            if (!isSilent()) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                if (!response.isCommitted()) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Bad Request, static resource "
+                            + request.getMethod().toUpperCase() + ":" + getPath(request) + " , " + e);
+                }
             }
             return;
         }
@@ -170,10 +179,12 @@ public class StaticServlet extends HttpServlet implements ISilent {
             boolean head) throws IOException {
 
         if (resource == null) {
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            if (!isSilent() && !response.isCommitted()) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not Found, static resource "
-                        + request.getMethod().toUpperCase() + ":" + request.getPathInfo() + " not exist");
+            if (!isSilent()) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                if (!response.isCommitted()) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Not Found, static resource "
+                            + request.getMethod().toUpperCase() + ":" + getPath(request) + " not exist");
+                }
             }
             return;
         }
@@ -202,12 +213,10 @@ public class StaticServlet extends HttpServlet implements ISilent {
     private StaticResource getStaticResource(String root, HttpServletRequest request)
             throws IllegalArgumentException {
 
-        String pathInfo = getPathInfo() != null ? getPathInfo() : request.getPathInfo();
-        if (pathInfo == null)
-            pathInfo = getRequestURI(request);
+        String pathInfo = getPath(request);
         
         if (pathInfo == null || pathInfo.isEmpty()) {
-            throw new IllegalArgumentException("pathInfo is null");
+            throw new IllegalArgumentException("Path is null");
         }
 
         String name;
