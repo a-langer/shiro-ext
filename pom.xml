@@ -226,13 +226,6 @@
                                 perms.loginUrl        = /login
                                 perm       = com.github.alanger.shiroext.web.PermissionAuthzFilter
 
-                                static     = com.github.alanger.shiroext.servlets.StaticFilter
-                                static.rootDir = src/test
-                                static.showContent = true
-                                staticPath     = com.github.alanger.shiroext.servlets.StaticFilter
-                                staticPath.rootDir = src/test
-                                staticPath.pathInfo = /resources/file.txt
-
                                 [users]
                                 admin = admin,admin,user,AppAdmin
                                 user = user,user,AppUser
@@ -242,8 +235,6 @@
                                 user = app:*
 
                                 [urls]
-                                /resources/**  = static
-                                /not_exist/**  = staticPath
                                 /basic     = basic
                                 /basicSilent = basicSilent, authc
                                 /login     = authc
@@ -264,7 +255,6 @@
                                 <include>**/LogoutAuthcFilterTest.java</include>
                                 <include>**/RolesAuthzFilterTest.java</include>
                                 <include>**/PermissionsAuthzFilterTest.java</include>
-                                <include>**/StaticFilterTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -373,6 +363,19 @@
                             <includes>
                                 <include>**/MutableRequestWrapperTest.java</include>
                                 <include>**/MultiReadRequestWrapperTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>static</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>**/StaticServletTest.java</include>
+                                <include>**/StaticFilterTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
