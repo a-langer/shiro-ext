@@ -159,10 +159,10 @@ public class ScriptProcessedServlet extends HttpServlet {
         logger = getInitParameter(LOGGER_NAME) != null ? Logger.getLogger(getInitParameter(LOGGER_NAME)) : logger;
         engine.getContext().setAttribute("logger", logger, ScriptContext.ENGINE_SCOPE);
 
-        initScript = getScript(INIT_SCRIPT, getInitScript());
-        invokeScript = getScript(INVOKE_SCRIPT, getInvokeScript());
-        destroyScript = getScript(DESTROY_SCRIPT, getDestroyScript());
-        classScript = getScript(CLASS_SCRIPT, getClassScript());
+        initScript = getScript(INIT_SCRIPT, initScriptPath);
+        invokeScript = getScript(INVOKE_SCRIPT, invokeScriptPath);
+        destroyScript = getScript(DESTROY_SCRIPT, destroyScriptPath);
+        classScript = getScript(CLASS_SCRIPT, classScriptPath);
     }
 
     @Override
