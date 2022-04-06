@@ -1,0 +1,1 @@
+filterConfig.addInitParameter("destroy-parameter", "destroy-value")

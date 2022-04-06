@@ -1,0 +1,1 @@
+servletConfig.addInitParameter("init-parameter", "init-value")

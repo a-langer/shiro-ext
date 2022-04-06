@@ -1,0 +1,1 @@
+filterConfig.addInitParameter("init-parameter", "init-value")

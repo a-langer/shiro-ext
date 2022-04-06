@@ -21,16 +21,11 @@ public class ScriptProcessedFilterTest extends ScriptProcessed {
         config = new MockFilterConfig();
         context = (MockServletContext) config.getServletContext();
 
-        context.addInitParameter(CTX_PREFIX + ENGINE_NAME, propEngineName);
-        config.addInitParameter(ENGINE_NAME, propEngineName);
-
-        context.addInitParameter(CTX_PREFIX + ENGINE_CLASS, propEngineClass);
-        config.addInitParameter(ENGINE_CLASS, propEngineClass);
-
-        config.addInitParameter(INIT_SCRIPT, System.getProperty(INIT_SCRIPT));
-        config.addInitParameter(INVOKE_SCRIPT, System.getProperty(INVOKE_SCRIPT));
-        config.addInitParameter(DESTROY_SCRIPT, System.getProperty(DESTROY_SCRIPT));
-        config.addInitParameter(CLASS_SCRIPT, System.getProperty(CLASS_SCRIPT));
+        System.getProperties().forEach((key, value) -> {
+            config.addInitParameter(key.toString(), value.toString());
+            context.addInitParameter(key.toString(), value.toString());
+        });
+        
         filter = new ScriptProcessedFilter();
         filter.init(config);
     }

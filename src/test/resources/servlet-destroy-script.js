@@ -1,0 +1,1 @@
+servletConfig.addInitParameter("destroy-parameter", "destroy-value")

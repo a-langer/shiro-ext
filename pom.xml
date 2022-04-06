@@ -259,7 +259,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>script-servlet</id>
+                        <id>script-servlet-text</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -278,7 +278,42 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>script-servlet</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <systemPropertyVariables>
+                                <shiroext-engine-class>not.exist.EngineClass</shiroext-engine-class>
+                                <engine-class>com.sun.phobos.script.javascript.RhinoScriptEngine</engine-class>
+                                <init-script>src/test/resources/servlet-init-script.js</init-script>
+                                <invoke-script>src/test/resources/servlet-invoke-script.js</invoke-script>
+                                <destroy-script>src/test/resources/servlet-destroy-script.js</destroy-script>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/ScriptProcessedServletTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>script-servlet-impl</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <systemPropertyVariables>
+                                <shiroext-engine-name>rhino</shiroext-engine-name>
+                                <class-script>src/test/resources/servlet-class-script.js</class-script>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/ScriptProcessedServletTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>script-servlet-text-impl</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -315,6 +350,25 @@
                             <systemPropertyVariables>
                                 <shiroext-engine-class>not.exist.EngineClass</shiroext-engine-class>
                                 <engine-class>com.sun.phobos.script.javascript.RhinoScriptEngine</engine-class>
+                                <init-script>src/test/resources/filter-init-script.js</init-script>
+                                <invoke-script>src/test/resources/filter-invoke-script.js</invoke-script>
+                                <destroy-script>src/test/resources/filter-destroy-script.js</destroy-script>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/ScriptProcessedFilterTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>script-filter-text</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <systemPropertyVariables>
+                                <shiroext-engine-class>not.exist.EngineClass</shiroext-engine-class>
+                                <engine-class>com.sun.phobos.script.javascript.RhinoScriptEngine</engine-class>
                                 <init-script-text>filterConfig.addInitParameter("init-parameter", "init-value")</init-script-text>
                                 <invoke-script-text>response.getOutputStream().print("text1")</invoke-script-text>
                                 <destroy-script-text>filterConfig.addInitParameter("destroy-parameter", "destroy-value")</destroy-script-text>
@@ -326,6 +380,22 @@
                     </execution>
                     <execution>
                         <id>script-filter-impl</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <systemPropertyVariables>
+                                <shiroext-engine-name>rhino</shiroext-engine-name>
+                                <class-script>src/test/resources/filter-class-script.js</class-script>
+                            </systemPropertyVariables>
+                            <includes>
+                                <include>**/ScriptProcessedFilterTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>script-filter-text-impl</id>
                         <goals>
                             <goal>test</goal>
                         </goals>

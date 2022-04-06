@@ -1,7 +1,12 @@
 package com.github.alanger.shiroext.servlets;
 
+import static com.github.alanger.shiroext.web.Utils.getRealPath;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,17 +30,22 @@ public class ScriptProcessedServlet extends HttpServlet {
     protected static final String CTX_PREFIX = "shiroext-";
     protected static final String ENGINE_NAME = "engine-name";
     protected static final String ENGINE_CLASS = "engine-class";
-    protected static final String INIT_SCRIPT = "init-script-text";
-    protected static final String INVOKE_SCRIPT = "invoke-script-text";
-    protected static final String DESTROY_SCRIPT = "destroy-script-text";
-    protected static final String CLASS_SCRIPT = "class-script-text";
+    protected static final String TEXT_POSTFIX = "-text";
+    protected static final String INIT_SCRIPT = "init-script";
+    protected static final String INVOKE_SCRIPT = "invoke-script";
+    protected static final String DESTROY_SCRIPT = "destroy-script";
+    protected static final String CLASS_SCRIPT = "class-script";
     protected static final String LOGGER_NAME = "logger-name";
 
     protected String engineName = "nashorn";
     protected String initScript = null;
+    protected String initScriptPath = null;
     protected String invokeScript = null;
+    protected String invokeScriptPath = null;
     protected String destroyScript = null;
+    protected String destroyScriptPath = null;
     protected String classScript = null;
+    protected String classScriptPath = null;
 
     protected boolean initialized = false;
 
@@ -90,10 +100,37 @@ public class ScriptProcessedServlet extends HttpServlet {
         this.initialized = initialized;
     }
 
-    protected static String getInitParameter(ServletConfig config, String name, String defValue) {
-        String value = config.getInitParameter(name) != null ? config.getInitParameter(name)
-                : config.getServletContext().getInitParameter(CTX_PREFIX + name);
+    protected static String getInitParameter(ServletConfig config, String key, String defValue) {
+        String value = config.getInitParameter(key) != null ? config.getInitParameter(key)
+                : config.getServletContext().getInitParameter(CTX_PREFIX + key);
         return value != null ? value : defValue;
+    }
+
+    protected String getScript(String key, String defValue) throws ServletException {
+        String value = getInitParameter(key) != null ? getInitParameter(key) : defValue;
+        if (value != null) {
+            String path = getRealPath(getServletContext(), value);
+            try {
+                value = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
+                if (CLASS_SCRIPT.equals(key)) {
+                    engine.getContext().setAttribute("__FILE__", path, ScriptContext.ENGINE_SCOPE);
+                    engine.getContext().setAttribute("__DIR__", path.substring(0, path.lastIndexOf("/")), ScriptContext.ENGINE_SCOPE);
+                    engine.getContext().setAttribute(ScriptEngine.FILENAME, path, ScriptContext.ENGINE_SCOPE);
+                    classScriptPath = path;
+                } else if (INIT_SCRIPT.equals(key)) {
+                    initScriptPath = path;
+                } else if (INVOKE_SCRIPT.equals(key)) {
+                    invokeScriptPath = path;
+                } else if (DESTROY_SCRIPT.equals(key)) {
+                    destroyScriptPath = path;
+                }
+            } catch (IOException e) {
+                throw new ServletException(e);
+            }
+        } else {
+            value = getInitParameter(key + TEXT_POSTFIX);
+        }
+        return value;
     }
 
     protected void initPatameter(ServletConfig config) throws ServletException {
@@ -122,10 +159,10 @@ public class ScriptProcessedServlet extends HttpServlet {
         logger = getInitParameter(LOGGER_NAME) != null ? Logger.getLogger(getInitParameter(LOGGER_NAME)) : logger;
         engine.getContext().setAttribute("logger", logger, ScriptContext.ENGINE_SCOPE);
 
-        initScript = getInitParameter(INIT_SCRIPT) != null ? getInitParameter(INIT_SCRIPT) : initScript;
-        invokeScript = getInitParameter(INVOKE_SCRIPT) != null ? getInitParameter(INVOKE_SCRIPT) : invokeScript;
-        destroyScript = getInitParameter(DESTROY_SCRIPT) != null ? getInitParameter(DESTROY_SCRIPT) : destroyScript;
-        classScript = getInitParameter(CLASS_SCRIPT) != null ? getInitParameter(CLASS_SCRIPT) : classScript;
+        initScript = getScript(INIT_SCRIPT, getInitScript());
+        invokeScript = getScript(INVOKE_SCRIPT, getInvokeScript());
+        destroyScript = getScript(DESTROY_SCRIPT, getDestroyScript());
+        classScript = getScript(CLASS_SCRIPT, getClassScript());
     }
 
     @Override
@@ -138,6 +175,7 @@ public class ScriptProcessedServlet extends HttpServlet {
                 invocable = (Invocable) engine;
                 invocable.invokeFunction("init", getServletConfig());
             } else if (initScript != null) {
+                engine.getContext().setAttribute(ScriptEngine.FILENAME, initScriptPath, ScriptContext.ENGINE_SCOPE);
                 engine.eval(initScript);
             }
             initialized = true;
@@ -154,6 +192,7 @@ public class ScriptProcessedServlet extends HttpServlet {
             if (classScript != null) {
                 invocable.invokeFunction("service", request, response);
             } else if (invokeScript != null) {
+                engine.getContext().setAttribute(ScriptEngine.FILENAME, invokeScriptPath, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("response", response, ScriptContext.ENGINE_SCOPE);
                 engine.eval(invokeScript);
@@ -170,6 +209,7 @@ public class ScriptProcessedServlet extends HttpServlet {
             if (classScript != null && invocable != null) {
                 invocable.invokeFunction("destroy");
             } else if (destroyScript != null) {
+                engine.getContext().setAttribute(ScriptEngine.FILENAME, destroyScriptPath, ScriptContext.ENGINE_SCOPE);
                 engine.eval(destroyScript);
             }
         } catch (ScriptException | NoSuchMethodException e) {

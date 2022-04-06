@@ -20,16 +20,11 @@ public class ScriptProcessedServletTest extends ScriptProcessed {
         config = new MockServletConfig();
         context = (MockServletContext) config.getServletContext();
 
-        context.addInitParameter(CTX_PREFIX + ENGINE_NAME, propEngineName);
-        config.addInitParameter(ENGINE_NAME, propEngineName);
+        System.getProperties().forEach((key, value) -> {
+            config.addInitParameter(key.toString(), value.toString());
+            context.addInitParameter(key.toString(), value.toString());
+        });
 
-        context.addInitParameter(CTX_PREFIX + ENGINE_CLASS, propEngineClass);
-        config.addInitParameter(ENGINE_CLASS, propEngineClass);
-
-        config.addInitParameter(INIT_SCRIPT, System.getProperty(INIT_SCRIPT));
-        config.addInitParameter(INVOKE_SCRIPT, System.getProperty(INVOKE_SCRIPT));
-        config.addInitParameter(DESTROY_SCRIPT, System.getProperty(DESTROY_SCRIPT));
-        config.addInitParameter(CLASS_SCRIPT, System.getProperty(CLASS_SCRIPT));
         servlet = new ScriptProcessedServlet();
         servlet.init(config);
     }

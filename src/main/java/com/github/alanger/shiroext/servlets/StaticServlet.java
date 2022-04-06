@@ -1,6 +1,6 @@
 package com.github.alanger.shiroext.servlets;
 
-import static com.github.alanger.shiroext.web.Utils.normalizePath;
+import static com.github.alanger.shiroext.web.Utils.normalizeDir;
 import static com.github.alanger.shiroext.web.Utils.getRequestURI;
 
 import java.io.ByteArrayInputStream;
@@ -119,7 +119,7 @@ public class StaticServlet extends HttpServlet implements ISilent {
 
     @Override
     public void init() throws ServletException {
-        rootDir = normalizePath(getInitParameter(DIR_KEY) != null ? getInitParameter(DIR_KEY) : getRootDir());
+        rootDir = normalizeDir(getInitParameter(DIR_KEY) != null ? getInitParameter(DIR_KEY) : getRootDir());
         if (DEFAULT_DIR.equals(rootDir))
             rootDir = getServletContext().getRealPath(DEFAULT_DIR);
         showContent = getInitParameter(SHOW_DIR_KEY) != null ? Boolean.valueOf(getInitParameter(SHOW_DIR_KEY))

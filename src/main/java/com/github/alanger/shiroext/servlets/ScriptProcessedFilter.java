@@ -5,6 +5,7 @@ import java.util.logging.Level;
 
 import javax.script.Invocable;
 import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -43,6 +44,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
                 invocable = (Invocable) engine;
                 invocable.invokeFunction("init", filterConfig);
             } else if (initScript != null) {
+                engine.getContext().setAttribute(ScriptEngine.FILENAME, initScriptPath, ScriptContext.ENGINE_SCOPE);
                 engine.eval(initScript);
             }
             initialized = true;
@@ -59,6 +61,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
             if (classScript != null) {
                 invocable.invokeFunction("doFilter", request, response, chain);
             } else if (invokeScript != null) {
+                engine.getContext().setAttribute(ScriptEngine.FILENAME, invokeScriptPath, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("request", request, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("response", response, ScriptContext.ENGINE_SCOPE);
                 engine.getContext().setAttribute("chain", chain, ScriptContext.ENGINE_SCOPE);
@@ -79,6 +82,7 @@ public class ScriptProcessedFilter extends ScriptProcessedServlet implements Fil
             if (classScript != null && invocable != null) {
                 invocable.invokeFunction("destroy");
             } else if (destroyScript != null) {
+                engine.getContext().setAttribute(ScriptEngine.FILENAME, destroyScriptPath, ScriptContext.ENGINE_SCOPE);
                 engine.eval(destroyScript);
             }
         } catch (ScriptException | NoSuchMethodException e) {

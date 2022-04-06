@@ -1,5 +1,6 @@
 package com.github.alanger.shiroext.web;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,12 +24,28 @@ public class Utils {
     }
 
     public static String normalizePath(String path) {
-        if (path != null) {
+        if (path != null)
             path = path.replace("\\\\", "/");
-            if (!path.endsWith("/"))
-                path = path + "/";
+        return path;
+    }
+
+    public static String normalizeDir(String path) {
+        path = normalizePath(path);
+        if (path != null && !path.endsWith("/")) {
+            path = path + "/";
         }
         return path;
+    }
+
+    public static String getRealPath(ServletContext sc, String path) {
+        if (isInternal(path)) {
+            path = sc.getRealPath(path);
+        }
+        return normalizePath(path);
+    }
+
+    public static boolean isInternal(String path) {
+        return (path == null || path.isEmpty()) || (path.startsWith("/WEB-INF/") || path.startsWith("/META-INF/"));
     }
 
 }
