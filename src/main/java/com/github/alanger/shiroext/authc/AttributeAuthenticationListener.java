@@ -15,9 +15,10 @@ import org.apache.shiro.mgt.RealmSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.alanger.shiroext.AttributeMapper;
 import com.github.alanger.shiroext.realm.AttributeProvider;
 
-public class AttributeAuthenticationListener implements AuthenticationListener {
+public class AttributeAuthenticationListener extends AttributeMapper implements AuthenticationListener {
 
     protected Logger log = LoggerFactory.getLogger(AttributeAuthenticationListener.class);
 
@@ -52,14 +53,17 @@ public class AttributeAuthenticationListener implements AuthenticationListener {
 
                 if (realm instanceof AttributeProvider) {
                     AttributeProvider attributeProvider = (AttributeProvider) realm;
-                    Map<String, Object> attributes = attributeProvider.getAttributesForUser(username);
-                    for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+                    Map<String, Object> attrs = attributeProvider.getAttributesForUser(username);
+                    for (Map.Entry<String, Object> entry : attrs.entrySet()) {
+                        if (attributes != null && attributes.size() > 0 && !attributes.containsKey(entry.getKey())) {
+                            continue;
+                        }
                         session.setAttribute(entry.getKey(), entry.getValue());
                     }
 
                     if (log.isTraceEnabled())
                         log.debug("Realm {} is AttributeProvider, in session added keys: {}", realm.getName(),
-                                attributes.keySet());
+                                attrs.keySet());
                 }
             }
         }
