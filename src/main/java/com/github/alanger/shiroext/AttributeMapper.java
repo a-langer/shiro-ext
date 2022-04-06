@@ -1,25 +1,23 @@
 package com.github.alanger.shiroext;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
-public class AttributeMapper {
-    
-    protected Map<String, Object> attributes = new HashMap<>();
+public class AttributeMapper extends Properties {
 
-    public Map<String, Object> getAttributes() {
-        return attributes;
+    public Map<Object, Object> getAttributes() {
+        return this;
     }
 
-    public void setAttributes(Map<String, Object> attributes) {
-        this.attributes = attributes;
+    public void setAttributes(Map<Object, Object> attributes) {
+        putAll(attributes);
     }
 
     public void setAttribute(String key, Object value) {
-        attributes.put(key, value);
+        put(key, value);
     }
 
     public Object getAttribute(String key) {
-        return attributes.get(key);
+        return get(key);
     }
 }

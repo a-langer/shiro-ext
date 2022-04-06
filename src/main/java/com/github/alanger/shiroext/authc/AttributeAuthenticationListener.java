@@ -20,9 +20,9 @@ import com.github.alanger.shiroext.realm.AttributeProvider;
 
 public class AttributeAuthenticationListener extends AttributeMapper implements AuthenticationListener {
 
-    protected Logger log = LoggerFactory.getLogger(AttributeAuthenticationListener.class);
+    protected transient Logger log = LoggerFactory.getLogger(AttributeAuthenticationListener.class);
 
-    private RealmSecurityManager securityManager = null;
+    private transient RealmSecurityManager securityManager = null;
 
     private String onSuccessAttribute = AttributeAuthenticationListener.class.getCanonicalName();
 
@@ -55,7 +55,7 @@ public class AttributeAuthenticationListener extends AttributeMapper implements 
                     AttributeProvider attributeProvider = (AttributeProvider) realm;
                     Map<String, Object> attrs = attributeProvider.getAttributesForUser(username);
                     for (Map.Entry<String, Object> entry : attrs.entrySet()) {
-                        if (attributes != null && attributes.size() > 0 && !attributes.containsKey(entry.getKey())) {
+                        if (getAttributes().size() > 0 && !getAttributes().containsKey(entry.getKey())) {
                             continue;
                         }
                         session.setAttribute(entry.getKey(), entry.getValue());
