@@ -55,7 +55,7 @@ public class AttributeAuthenticationListener extends AttributeMapper implements 
                     AttributeProvider attributeProvider = (AttributeProvider) realm;
                     Map<String, Object> attrs = attributeProvider.getAttributesForUser(username);
                     for (Map.Entry<String, Object> entry : attrs.entrySet()) {
-                        if (getAttributes().size() > 0 && !getAttributes().containsKey(entry.getKey())) {
+                        if (size() > 0 && !containsKey(entry.getKey())) {
                             continue;
                         }
                         session.setAttribute(entry.getKey(), entry.getValue());

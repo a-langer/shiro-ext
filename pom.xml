@@ -449,6 +449,18 @@
                             </includes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>attribute-mapper</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <includes>
+                                <include>**/AttributeMapperTest.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
