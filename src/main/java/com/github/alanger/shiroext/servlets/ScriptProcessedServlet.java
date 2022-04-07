@@ -92,6 +92,38 @@ public class ScriptProcessedServlet extends HttpServlet {
         this.classScript = classScript;
     }
 
+    public String getInitScriptPath() {
+        return initScriptPath;
+    }
+
+    public void setInitScriptPath(String initScriptPath) {
+        this.initScriptPath = initScriptPath;
+    }
+
+    public String getInvokeScriptPath() {
+        return invokeScriptPath;
+    }
+
+    public void setInvokeScriptPath(String invokeScriptPath) {
+        this.invokeScriptPath = invokeScriptPath;
+    }
+
+    public String getDestroyScriptPath() {
+        return destroyScriptPath;
+    }
+
+    public void setDestroyScriptPath(String destroyScriptPath) {
+        this.destroyScriptPath = destroyScriptPath;
+    }
+
+    public String getClassScriptPath() {
+        return classScriptPath;
+    }
+
+    public void setClassScriptPath(String classScriptPath) {
+        this.classScriptPath = classScriptPath;
+    }
+
     public boolean isInitialized() {
         return initialized;
     }
