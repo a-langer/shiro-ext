@@ -14,6 +14,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class BasicAuthcFilterTest extends AbstractShiroFilters {
 
+    protected String path = "/basic";
+    protected String pathSilent = "/basicSilent";
+    protected String authorization = "Basic " + Base64.encodeToString((admin + ":" + admin).getBytes());
+
     public BasicAuthcFilterTest() throws Throwable {
         super();
     }
@@ -23,7 +27,7 @@ public class BasicAuthcFilterTest extends AbstractShiroFilters {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setPathInfo("/basic");
+        request.setPathInfo(path);
         filter.doFilter(request, response, chain);
         log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
                 response.getHeader("Location"), response.getHeader("Set-Cookie"), response.getContentAsString());
@@ -36,7 +40,7 @@ public class BasicAuthcFilterTest extends AbstractShiroFilters {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setPathInfo("/basicSilent");
+        request.setPathInfo(pathSilent);
         filter.doFilter(request, response, chain);
         log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
                 response.getHeader("Location"), response.getHeader("Set-Cookie"), response.getContentAsString());
@@ -50,7 +54,7 @@ public class BasicAuthcFilterTest extends AbstractShiroFilters {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setPathInfo("/basic");
+        request.setPathInfo(path);
         request.addHeader("X-Requested-With", "XMLHttpRequest");
         filter.doFilter(request, response, chain);
         log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
@@ -64,7 +68,7 @@ public class BasicAuthcFilterTest extends AbstractShiroFilters {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setPathInfo("/basicSilent");
+        request.setPathInfo(pathSilent);
         request.addHeader("X-Requested-With", "XMLHttpRequest");
         filter.doFilter(request, response, chain);
         log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
@@ -78,8 +82,8 @@ public class BasicAuthcFilterTest extends AbstractShiroFilters {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setPathInfo("/basic");
-        request.addHeader("Authorization", "Basic " + Base64.encodeToString((admin + ":" + admin).getBytes()));
+        request.setPathInfo(path);
+        request.addHeader("Authorization", authorization);
         filter.doFilter(request, response, chain);
         log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
                 response.getHeader("Location"), response.getHeader("Set-Cookie"), response.getContentAsString());
@@ -92,9 +96,9 @@ public class BasicAuthcFilterTest extends AbstractShiroFilters {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
         request.setMethod("GET");
-        request.setPathInfo("/basic");
+        request.setPathInfo(path);
         request.addHeader("X-Requested-With", "XMLHttpRequest");
-        request.addHeader("Authorization", "Basic " + Base64.encodeToString((admin + ":" + admin).getBytes()));
+        request.addHeader("Authorization", authorization);
         filter.doFilter(request, response, chain);
         log.trace("status: {}, location: {}, cookie: {}, content: {}", response.getStatus(),
                 response.getHeader("Location"), response.getHeader("Set-Cookie"), response.getContentAsString());

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class BasicAuthcFilter extends BasicHttpAuthenticationFilter implements ISilent {
 
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private boolean silent = false;
 

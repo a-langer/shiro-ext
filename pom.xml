@@ -215,7 +215,11 @@
                                 basic       = com.github.alanger.shiroext.web.BasicAuthcFilter
                                 basicSilent = com.github.alanger.shiroext.web.BasicAuthcFilter
                                 basicSilent.silent = true
-                                
+
+                                bearer = com.github.alanger.shiroext.web.BearerAuthcFilter
+                                bearerSilent = com.github.alanger.shiroext.web.BearerAuthcFilter
+                                bearerSilent.silent = true
+
                                 logout     = com.github.alanger.shiroext.web.LogoutAuthcFilter
                                 roles      = com.github.alanger.shiroext.web.RolesAuthzFilter
                                 roles.unauthorizedUrl = /loginError
@@ -237,6 +241,8 @@
                                 [urls]
                                 /basic     = basic
                                 /basicSilent = basicSilent, authc
+                                /bearer    = bearer
+                                /bearerSilent = bearerSilent, authc
                                 /login     = authc
                                 /base64    = authcBase64
                                 /logout    = logout
@@ -252,6 +258,7 @@
                             <includes>
                                 <include>**/FormAuthcFilterTest.java</include>
                                 <include>**/BasicAuthcFilterTest.java</include>
+                                <include>**/BearerAuthcFilterTest.java</include>
                                 <include>**/LogoutAuthcFilterTest.java</include>
                                 <include>**/RolesAuthzFilterTest.java</include>
                                 <include>**/PermissionsAuthzFilterTest.java</include>
