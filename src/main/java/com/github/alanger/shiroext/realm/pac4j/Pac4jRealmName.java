@@ -16,33 +16,44 @@ import org.pac4j.core.profile.UserProfile;
 
 import java.util.*;
 
+import com.github.alanger.shiroext.realm.ICommonPermission;
+import com.github.alanger.shiroext.realm.ICommonRole;
+import com.github.alanger.shiroext.realm.IPrincipalName;
+import com.github.alanger.shiroext.realm.IUserPrefix;
+
 // See https://github.com/bujiio/buji-pac4j/blob/master/src/main/java/io/buji/pac4j/realm/Pac4jRealm.java
-public class Pac4jRealmName extends Pac4jRealm {
+public class Pac4jRealmName extends Pac4jRealm implements ICommonPermission, ICommonRole, IUserPrefix, IPrincipalName {
 
     private String commonRole = null;
     private String commonPermission = null;
     private String userPrefix = "";
 
+    @Override
     public String getCommonRole() {
         return commonRole;
     }
 
+    @Override
     public void setCommonRole(String commonRole) {
         this.commonRole = commonRole;
     }
 
+    @Override
     public String getCommonPermission() {
         return commonPermission;
     }
 
+    @Override
     public void setCommonPermission(String commonPermission) {
         this.commonPermission = commonPermission;
     }
 
+    @Override
     public String getUserPrefix() {
         return userPrefix;
     }
 
+    @Override
     public void setUserPrefix(String userPrefix) {
         this.userPrefix = userPrefix;
     }

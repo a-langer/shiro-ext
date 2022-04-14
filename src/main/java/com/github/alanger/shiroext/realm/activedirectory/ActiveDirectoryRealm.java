@@ -26,7 +26,11 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import com.github.alanger.shiroext.realm.AttributeProvider;
+import com.github.alanger.shiroext.realm.IAttributeProvider;
+import com.github.alanger.shiroext.realm.ICommonPermission;
+import com.github.alanger.shiroext.realm.ICommonRole;
+import com.github.alanger.shiroext.realm.INamed;
+import com.github.alanger.shiroext.realm.IUserPrefix;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -44,7 +48,8 @@ import org.apache.shiro.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ActiveDirectoryRealm extends AbstractLdapRealm implements AttributeProvider {
+public class ActiveDirectoryRealm extends AbstractLdapRealm
+        implements IAttributeProvider, ICommonPermission, ICommonRole, IUserPrefix, INamed {
 
     private static Logger log = LoggerFactory.getLogger(ActiveDirectoryRealm.class);
 
@@ -54,6 +59,54 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
 
     public ActiveDirectoryRealm() {
         searchFilter = "(&(objectCategory=person)(objectClass=user)(sAMAccountName={0}))";
+    }
+
+    protected String commonPermission = null;
+
+    @Override
+    public String getCommonPermission() {
+        return commonPermission;
+    }
+
+    @Override
+    public void setCommonPermission(String commonPermission) {
+        this.commonPermission = commonPermission;
+    }
+
+    protected String commonRole = null;
+
+    @Override
+    public String getCommonRole() {
+        return commonRole;
+    }
+
+    @Override
+    public void setCommonRole(String commonRole) {
+        this.commonRole = commonRole;
+    }
+
+    private String userPrefix;
+
+    @Override
+    public String getUserPrefix() {
+        return userPrefix;
+    }
+
+    @Override
+    public void setUserPrefix(String userPrefix) {
+        this.userPrefix = userPrefix;
+    }
+
+    private boolean named = false;
+
+    @Override
+    public boolean isNamed() {
+        return named;
+    }
+
+    @Override
+    public void setNamed(boolean named) {
+        this.named = named;
     }
 
     private String userAttributes = "displayName, distinguishedName, memberOf, mail, title, department, telephoneNumber";
@@ -100,7 +153,7 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
 
     protected boolean roleNested = false;
 
-    public boolean getRoleNested() {
+    public boolean isRoleNested() {
         return this.roleNested;
     }
 
@@ -110,32 +163,12 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
 
     protected boolean roleShortName = true;
 
-    public boolean getRoleShortName() {
+    public boolean isRoleShortName() {
         return roleShortName;
     }
 
     public void setRoleShortName(boolean roleShortName) {
         this.roleShortName = roleShortName;
-    }
-
-    protected String commonRole = null;
-
-    public String getCommonRole() {
-        return commonRole;
-    }
-
-    public void setCommonRole(String commonRole) {
-        this.commonRole = commonRole;
-    }
-
-    protected String commonPermission = null;
-
-    public String getCommonPermission() {
-        return commonPermission;
-    }
-
-    public void setCommonPermission(String commonPermission) {
-        this.commonPermission = commonPermission;
     }
 
     protected String roleBase = "";
@@ -168,22 +201,12 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
      */
     protected boolean adCompat = false;
 
-    public boolean getAdCompat() {
+    public boolean isAdCompat() {
         return adCompat;
     }
 
     public void setAdCompat(boolean adCompat) {
         this.adCompat = adCompat;
-    }
-
-    private boolean named = false;
-
-    public boolean getNamed() {
-        return named;
-    }
-
-    public void setNamed(boolean named) {
-        this.named = named;
     }
 
     private long sizeLimit = 0;
@@ -315,16 +338,6 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         return true;
     }
 
-    private String userPrefix;
-
-    public String getUserPrefix() {
-        return userPrefix;
-    }
-
-    public void setUserPrefix(String userPrefix) {
-        this.userPrefix = userPrefix;
-    }
-
     private boolean isValidPrincipalName(String userPrincipalName) {
         if (userPrincipalName != null) {
             if (StringUtils.hasLength(userPrincipalName) && userPrincipalName.contains("@")) {
@@ -366,11 +379,11 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             log.trace("withOutDomain username: {}, domain: {}: ", username, domain);
 
         // Domain name maybe null or correct value
-        if (!getNamed() && (domain != null && !domain.equalsIgnoreCase(getName()))) {
+        if (!isNamed() && (domain != null && !domain.equalsIgnoreCase(getName()))) {
             return null;
         }
         // Necessarily required correct domain name
-        if (getNamed() && (domain == null || !domain.equalsIgnoreCase(getName()))) {
+        if (isNamed() && (domain == null || !domain.equalsIgnoreCase(getName()))) {
             return null;
         }
 
@@ -483,7 +496,7 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
         Collection<String> groupNames = attrCollection.get(roleNameAttribute); // memberOf
 
         if (groupNames != null) {
-            if (getRoleNested()) {
+            if (isRoleNested()) {
                 Set<String> newGroups = new LinkedHashSet<>(groupNames);
                 while (!newGroups.isEmpty()) {
                     Set<String> newThisRound = new LinkedHashSet<>();
@@ -524,7 +537,7 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm implements Attribute
             }
 
             // Short role name [Admin_Group,Manger_Group]
-            if (getRoleShortName()) {
+            if (isRoleShortName()) {
                 groupNames = getRoleShortNamesByAttribute(groupNames, roleName); // "CN"
             }
 

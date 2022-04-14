@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.alanger.shiroext.AttributeMapper;
-import com.github.alanger.shiroext.realm.AttributeProvider;
+import com.github.alanger.shiroext.realm.IAttributeProvider;
 
 public class AttributeAuthenticationListener extends AttributeMapper implements AuthenticationListener {
 
@@ -51,8 +51,8 @@ public class AttributeAuthenticationListener extends AttributeMapper implements 
                 if (log.isTraceEnabled())
                     log.debug("User {} is authorized through realm: {} = {}", username, realm.getName(), realm);
 
-                if (realm instanceof AttributeProvider) {
-                    AttributeProvider attributeProvider = (AttributeProvider) realm;
+                if (realm instanceof IAttributeProvider) {
+                    IAttributeProvider attributeProvider = (IAttributeProvider) realm;
                     Map<String, Object> attrs = attributeProvider.getAttributesForUser(username);
                     for (Map.Entry<String, Object> entry : attrs.entrySet()) {
                         if (size() > 0 && !containsKey(entry.getKey())) {
