@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class JdbcRealmName extends JdbcRealm implements ICommonPermission, ICommonRole, IPrincipalName {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected String commonRole = null;
     protected String commonPermission = null;
@@ -114,8 +114,10 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                     }
 
                     String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
-                    log.trace("Got principal [{}] by attribute [{}] and name [{}]", principalName, nameAttribute,
-                            username);
+                    if (log.isTraceEnabled()) {
+                        log.trace("Got principal [{}] by attribute [{}] and name [{}]", principalName, nameAttribute,
+                                username);
+                    }
 
                     if (principalName != null) {
                         upToken.setUsername(principalName);
