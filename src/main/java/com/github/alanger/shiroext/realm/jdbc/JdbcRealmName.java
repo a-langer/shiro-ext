@@ -25,11 +25,10 @@ import org.slf4j.LoggerFactory;
 
 public class JdbcRealmName extends JdbcRealm implements ICommonPermission, ICommonRole, IPrincipalName {
 
-    private static final Logger log = LoggerFactory.getLogger(JdbcRealmName.class);
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected String commonRole = null;
     protected String commonPermission = null;
-    protected String userPrefix = "";
     protected String principalNameAttribute;
     protected String principalNameQuery;
     protected boolean skipIfNullAttribute = false;
@@ -83,9 +82,13 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
 
-        String nameAttribute = upToken instanceof IPrincipalName
-                ? ((IPrincipalName) upToken).getPrincipalNameAttribute()
-                : getPrincipalNameAttribute();
+        String nameAttribute = null;
+        if (upToken instanceof IPrincipalName) {
+            nameAttribute = ((IPrincipalName) upToken).getPrincipalNameAttribute();
+        }
+        if (nameAttribute == null) {
+            nameAttribute = getPrincipalNameAttribute();
+        }
 
         if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
             String username = upToken.getUsername();
@@ -111,6 +114,9 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                     }
 
                     String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
+                    log.trace("Got principal [{}] by attribute [{}] and name [{}]", principalName, nameAttribute,
+                            username);
+
                     if (principalName != null) {
                         upToken.setUsername(principalName);
                     }

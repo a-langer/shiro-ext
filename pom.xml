@@ -75,6 +75,7 @@
         <mockito.version>4.3.1</mockito.version>
         <spring.test.version>5.3.16</spring.test.version>
         <embedded.ldap.junit.version>0.8.1</embedded.ldap.junit.version>
+        <h2.version>2.1.212</h2.version>
     </properties>
 
     <build>
@@ -149,9 +150,9 @@
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
-                    <!-- mvn clean test-compile surefire:test@shiro-ldap-realm -Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword -->
+                    <!-- mvn clean test-compile surefire:test@shiro-realms -Durl=ldap://corp.company.com:389 -Dusername=userLogin -Dpassword=userPassword -->
                     <execution>
-                        <id>shiro-ldap-realm</id>
+                        <id>shiro-realms</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -162,6 +163,7 @@
                             </systemPropertyVariables>
                             <includes>
                                 <include>**/ActiveDirectoryRealmTest.java</include>
+                                <include>**/JdbcRealmNameTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
@@ -429,9 +431,9 @@
                             </includes>
                         </configuration>
                     </execution>
-                    <!-- mvn clean test-compile surefire:test@mutable-request-wrapper -Dsurefire.skipAfterFailureCount=1 -->
+                    <!-- mvn clean test-compile surefire:test@servlets -Dsurefire.skipAfterFailureCount=1 -->
                     <execution>
-                        <id>mutable-request-wrapper</id>
+                        <id>servlets</id>
                         <goals>
                             <goal>test</goal>
                         </goals>
@@ -440,30 +442,8 @@
                             <includes>
                                 <include>**/MutableRequestWrapperTest.java</include>
                                 <include>**/MultiReadRequestWrapperTest.java</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>static</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <includes>
                                 <include>**/StaticServletTest.java</include>
                                 <include>**/StaticFilterTest.java</include>
-                            </includes>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>attribute-mapper</id>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <skip>false</skip>
-                            <includes>
                                 <include>**/AttributeMapperTest.java</include>
                             </includes>
                         </configuration>
@@ -648,6 +628,12 @@
             <groupId>org.zapodot</groupId>
             <artifactId>embedded-ldap-junit</artifactId>
             <version>${embedded.ldap.junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
