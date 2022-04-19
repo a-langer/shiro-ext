@@ -20,12 +20,12 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JdbcRealmName extends JdbcRealm implements ICommonPermission, ICommonRole, IPrincipalName {
 
-    protected Logger logger = Logger.getLogger(this.getClass().getCanonicalName());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected String commonRole = null;
     protected String commonPermission = null;
@@ -137,15 +137,14 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                     logger.finest("6 foundResult : " + foundResult );
 
                     String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
-                    if (logger.isLoggable(Level.FINEST)) {
-                        logger.finest(String.format("Got principal [%s] by attribute [%s] and username [%s]",
-                                principalName, nameAttribute, username));
+                    if (log.isTraceEnabled()) {
+                        log.trace("Got principal [{}] by attribute [{}] and name [{}]", principalName, nameAttribute,
+                                username);
                     }
                     logger.finest("7 principalName : " + principalName );
 
                     if (principalName != null) {
-                        upToken = new UsernamePasswordToken(principalName, upToken.getPassword(),
-                                upToken.isRememberMe(), upToken.getHost());
+                        upToken.setUsername(principalName);
                     }
                     logger.finest("8 upToken : " + upToken );
 
@@ -154,8 +153,8 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                 logger.finest("9 foundResult : " + foundResult );
             } catch (SQLException e) {
                 final String message = "There was a SQL error while getting principal name of user [" + username + "]";
-                if (logger.isLoggable(Level.SEVERE)) {
-                    logger.log(Level.SEVERE, message, e);
+                if (log.isErrorEnabled()) {
+                    log.error(message, e);
                 }
                 logger.finest("9.1 SQLException : " + e );
                 throw new AuthenticationException(message, e);
