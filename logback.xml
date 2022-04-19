@@ -15,6 +15,10 @@
     <logger name="com.github.alanger.shiroext" level="ERROR" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
+
+    <logger name="com.github.alanger.shiroext.realm.jdbc" level="TRACE" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
     
     <logger name="com.github.alanger.shiroext.realm.activedirectory" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT" />
