@@ -90,7 +90,10 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
             nameAttribute = getPrincipalNameAttribute();
         }
 
-        // if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
+        logger.severe("1 token: " + upToken + ", " + upToken.getClass() + ", " + String.valueOf(upToken.getPassword()));
+        logger.severe("2 principalNameQuery: " + principalNameQuery + ", skipIfNullAttribute: " + this.skipIfNullAttribute);
+
+        if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
             String username = upToken.getUsername();
 
             Connection conn = null;
@@ -137,7 +140,7 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                 JdbcUtils.closeStatement(ps);
                 JdbcUtils.closeConnection(conn);
             }
-        // }
+        }
         return super.doGetAuthenticationInfo(upToken);
     }
 
