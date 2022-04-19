@@ -101,15 +101,22 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
             logger.finest("3 username : " + username );
 
             Connection conn = null;
+            logger.finest("3.1 username : " + username );
             PreparedStatement ps = null;
+            logger.finest("3.2 username : " + username );
             ResultSet rs = null;
+            logger.finest("3.3 username : " + username );
             try {
                 conn = dataSource.getConnection();
+                logger.finest("3.4 conn : " + conn );
 
                 ps = conn.prepareStatement(principalNameQuery);
+                logger.finest("3.5 ps : " + ps );
                 ps.setString(1, username);
+                logger.finest("3.6 ps : " + ps );
 
                 rs = ps.executeQuery();
+                logger.finest("3.7 rs : " + rs );
 
                 boolean foundResult = false;
 
