@@ -107,7 +107,12 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
             ResultSet rs = null;
             logger.finest("3.3 username : " + username );
             try {
-                conn = dataSource.getConnection();
+                try {
+                    conn = dataSource.getConnection();
+                } catch (Exception e) {
+                    logger.finest("3.3 error : " + e);
+                }
+                
                 logger.finest("3.4 conn : " + conn );
 
                 ps = conn.prepareStatement(principalNameQuery);
