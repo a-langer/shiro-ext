@@ -79,68 +79,73 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
         this.skipIfNullAttribute = skipIfNullAttribute;
     }
 
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+    protected AuthenticationToken getAuthenticationToken(AuthenticationToken token, String nameAttribute)
+            throws AuthenticationException {
         UsernamePasswordToken upToken = (UsernamePasswordToken) token;
+        String username = upToken.getUsername();
 
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            conn = dataSource.getConnection();
+
+            ps = conn.prepareStatement(principalNameQuery);
+            ps.setString(1, username);
+
+            rs = ps.executeQuery();
+
+            boolean foundResult = false;
+
+            while (rs.next()) {
+
+                if (foundResult) {
+                    throw new AuthenticationException(
+                            "More than one row of principal found for user [" + username
+                                    + "]. Principal name must be unique.");
+                }
+
+                String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Got principal [{}] by attribute [{}] and username [{}]", principalName, nameAttribute,
+                            username);
+                }
+
+                if (principalName != null) {
+                    upToken = new UsernamePasswordToken(principalName, upToken.getPassword(),
+                            upToken.isRememberMe(), upToken.getHost());
+                }
+
+                foundResult = true;
+            }
+        } catch (SQLException e) {
+            final String message = "There was a SQL error while getting principal name of user [" + username + "]";
+            if (logger.isErrorEnabled()) {
+                logger.error(message, e);
+            }
+            throw new AuthenticationException(message, e);
+        } finally {
+            JdbcUtils.closeResultSet(rs);
+            JdbcUtils.closeStatement(ps);
+            JdbcUtils.closeConnection(conn);
+        }
+        return upToken;
+    }
+
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         String nameAttribute = null;
-        if (upToken instanceof IPrincipalName) {
-            nameAttribute = ((IPrincipalName) upToken).getPrincipalNameAttribute();
+        if (token instanceof IPrincipalName) {
+            nameAttribute = ((IPrincipalName) token).getPrincipalNameAttribute();
         }
         if (nameAttribute == null) {
             nameAttribute = getPrincipalNameAttribute();
         }
 
         if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
-            String username = upToken.getUsername();
-
-            Connection conn = null;
-            PreparedStatement ps = null;
-            ResultSet rs = null;
-
-            try {
-                conn = dataSource.getConnection();
-
-                ps = conn.prepareStatement(principalNameQuery);
-                ps.setString(1, username);
-
-                rs = ps.executeQuery();
-
-                boolean foundResult = false;
-
-                while (rs.next()) {
-
-                    if (foundResult) {
-                        throw new AuthenticationException(
-                                "More than one row of principal found for user [" + username
-                                        + "]. Principal name must be unique.");
-                    }
-
-                    String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Got principal [{}] by attribute [{}] and username [{}]", principalName, nameAttribute,
-                                username);
-                    }
-
-                    if (principalName != null) {
-                        upToken = new UsernamePasswordToken(principalName, upToken.getPassword(),
-                                upToken.isRememberMe(), upToken.getHost());
-                    }
-
-                    foundResult = true;
-                }
-            } catch (SQLException e) {
-                final String message = "There was a SQL error while getting principal name of user [" + username + "]";
-                if (logger.isErrorEnabled()) {
-                    logger.error(message, e);
-                }
-                throw new AuthenticationException(message, e);
-            } finally {
-                JdbcUtils.closeResultSet(rs);
-                JdbcUtils.closeStatement(ps);
-                JdbcUtils.closeConnection(conn);
-            }
+            token = getAuthenticationToken(token, nameAttribute);
         }
-        return super.doGetAuthenticationInfo(upToken);
+        return super.doGetAuthenticationInfo(token);
     }
 
     @Override
