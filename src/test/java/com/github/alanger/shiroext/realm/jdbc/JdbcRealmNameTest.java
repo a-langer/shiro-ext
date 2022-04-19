@@ -170,4 +170,14 @@ public class JdbcRealmNameTest extends JdbcRealmName {
         test01_Authentication();
     }
 
+    @Test
+    public void test05_SkipIfNullNameAttributeTokenWithAttribute() throws Throwable {
+        setPrincipalNameQuery("SELECT LOGIN FROM API_KEY WHERE TOKEN = ?");
+        setPrincipalNameAttribute(null);
+        setSkipIfNullAttribute(true);
+        TOKEN.setUsername(API_KEY);
+        TOKEN.setPrincipalNameAttribute("LOGIN");
+        test01_Authentication();
+    }
+
 }

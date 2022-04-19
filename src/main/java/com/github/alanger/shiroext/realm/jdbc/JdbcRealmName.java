@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 public class JdbcRealmName extends JdbcRealm implements ICommonPermission, ICommonRole, IPrincipalName {
 
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected String commonRole = null;
     protected String commonPermission = null;
@@ -90,68 +90,49 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
             nameAttribute = getPrincipalNameAttribute();
         }
 
-        logger.severe("1 token: " + upToken + ", " + upToken.getClass() + ", " + String.valueOf(upToken.getPassword()));
-        logger.severe("2 nameAttribute: " + nameAttribute + ", principalNameQuery: " + principalNameQuery + ", skipIfNullAttribute: " + this.skipIfNullAttribute);
-        if (logger.isLoggable(Level.FINEST)) {
-            logger.finest("finest enabled");
-        }
-
         if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
             String username = upToken.getUsername();
-            logger.finest("3 username : " + username );
 
             Connection conn = null;
-            logger.finest("3.1 username : " + username );
             PreparedStatement ps = null;
-            logger.finest("3.2 username : " + username );
             ResultSet rs = null;
-            logger.finest("3.3 username : " + username );
+
             try {
                 conn = dataSource.getConnection();
-                logger.finest("3.4 conn : " + conn );
 
                 ps = conn.prepareStatement(principalNameQuery);
-                logger.finest("3.5 ps : " + ps );
                 ps.setString(1, username);
-                logger.finest("3.6 ps : " + ps );
 
                 rs = ps.executeQuery();
-                logger.finest("3.7 rs : " + rs );
 
                 boolean foundResult = false;
 
-                logger.finest("4 conn : " + conn );
                 while (rs.next()) {
-                    logger.finest("5 rs : " + rs );
 
                     if (foundResult) {
                         throw new AuthenticationException(
                                 "More than one row of principal found for user [" + username
                                         + "]. Principal name must be unique.");
                     }
-                    logger.finest("6 foundResult : " + foundResult );
 
                     String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
-                    if (log.isTraceEnabled()) {
-                        log.trace("Got principal [{}] by attribute [{}] and name [{}]", principalName, nameAttribute,
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Got principal [{}] by attribute [{}] and username [{}]", principalName, nameAttribute,
                                 username);
                     }
-                    logger.finest("7 principalName : " + principalName );
 
                     if (principalName != null) {
-                        upToken.setUsername(principalName);
+                        upToken = new UsernamePasswordToken(principalName, upToken.getPassword(),
+                                upToken.isRememberMe(), upToken.getHost());
                     }
-                    logger.finest("8 upToken : " + upToken );
 
                     foundResult = true;
                 }
-                logger.finest("9 foundResult : " + foundResult );
             } catch (SQLException e) {
                 final String message = "There was a SQL error while getting principal name of user [" + username + "]";
-                if (log.isErrorEnabled()) {
-                    log.error(message, e);
+                if (logger.isErrorEnabled()) {
+                    logger.error(message, e);
                 }
-                logger.finest("9.1 SQLException : " + e );
                 throw new AuthenticationException(message, e);
             } finally {
                 JdbcUtils.closeResultSet(rs);
@@ -159,7 +140,6 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                 JdbcUtils.closeConnection(conn);
             }
         }
-        logger.finest("10 super upToken: " + upToken );
         return super.doGetAuthenticationInfo(upToken);
     }
 
