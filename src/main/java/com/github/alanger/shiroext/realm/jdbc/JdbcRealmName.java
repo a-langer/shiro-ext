@@ -98,6 +98,7 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
 
         if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
             String username = upToken.getUsername();
+            logger.finest("3 username : " + username );
 
             Connection conn = null;
             PreparedStatement ps = null;
@@ -111,32 +112,40 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                 rs = ps.executeQuery();
 
                 boolean foundResult = false;
+
+                logger.finest("4 conn : " + conn );
                 while (rs.next()) {
+                    logger.finest("5 rs : " + rs );
 
                     if (foundResult) {
                         throw new AuthenticationException(
                                 "More than one row of principal found for user [" + username
                                         + "]. Principal name must be unique.");
                     }
+                    logger.finest("6 foundResult : " + foundResult );
 
                     String principalName = nameAttribute != null ? rs.getString(nameAttribute) : rs.getString(1);
                     if (logger.isLoggable(Level.FINEST)) {
                         logger.finest(String.format("Got principal [%s] by attribute [%s] and username [%s]",
                                 principalName, nameAttribute, username));
                     }
+                    logger.finest("7 principalName : " + principalName );
 
                     if (principalName != null) {
                         upToken = new UsernamePasswordToken(principalName, upToken.getPassword(),
                                 upToken.isRememberMe(), upToken.getHost());
                     }
+                    logger.finest("8 upToken : " + upToken );
 
                     foundResult = true;
                 }
+                logger.finest("9 foundResult : " + foundResult );
             } catch (SQLException e) {
                 final String message = "There was a SQL error while getting principal name of user [" + username + "]";
                 if (logger.isLoggable(Level.SEVERE)) {
                     logger.log(Level.SEVERE, message, e);
                 }
+                logger.finest("9.1 SQLException : " + e );
                 throw new AuthenticationException(message, e);
             } finally {
                 JdbcUtils.closeResultSet(rs);
@@ -144,6 +153,7 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
                 JdbcUtils.closeConnection(conn);
             }
         }
+        logger.finest("10 super upToken: " + upToken );
         return super.doGetAuthenticationInfo(upToken);
     }
 
