@@ -91,7 +91,10 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
         }
 
         logger.severe("1 token: " + upToken + ", " + upToken.getClass() + ", " + String.valueOf(upToken.getPassword()));
-        logger.severe("2 principalNameQuery: " + principalNameQuery + ", skipIfNullAttribute: " + this.skipIfNullAttribute);
+        logger.severe("2 nameAttribute: " + nameAttribute + ", principalNameQuery: " + principalNameQuery + ", skipIfNullAttribute: " + this.skipIfNullAttribute);
+        if (logger.isLoggable(Level.FINEST)) {
+            logger.finest("finest enabled");
+        }
 
         if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
             String username = upToken.getUsername();
