@@ -26,7 +26,7 @@ public class StaticFilterTest extends StaticServletTest {
         chain = new MockFilterChain();
         init(config);
     }
-    
+
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) throws Throwable {
         doFilter(request, response, chain);

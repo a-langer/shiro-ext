@@ -23,5 +23,5 @@ public class StaticFilter extends StaticServlet implements Filter {
         if (!response.isCommitted())
             chain.doFilter(request, response);
     }
-    
+
 }

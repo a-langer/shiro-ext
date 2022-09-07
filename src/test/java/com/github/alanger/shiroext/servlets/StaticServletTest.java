@@ -31,7 +31,7 @@ public class StaticServletTest extends StaticFilter {
     protected void doService(HttpServletRequest request, HttpServletResponse response) throws Throwable {
         service(request, response);
     }
-    
+
     @Test
     public void test01_Content() throws Throwable {
         MockHttpServletRequest request = new MockHttpServletRequest();

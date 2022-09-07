@@ -2,6 +2,7 @@ package com.github.alanger.shiroext.web;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
 
 public class Utils {
@@ -46,6 +47,18 @@ public class Utils {
 
     public static boolean isInternal(String path) {
         return (path == null || path.isEmpty()) || (path.startsWith("/WEB-INF/") || path.startsWith("/META-INF/"));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T getNativeRequest(ServletRequest request, Class<T> requiredType) {
+        if (requiredType != null) {
+            if (requiredType.isInstance(request)) {
+                return (T) request;
+            } else if (request instanceof ServletRequestWrapper) {
+                return getNativeRequest(((ServletRequestWrapper) request).getRequest(), requiredType);
+            }
+        }
+        return null;
     }
 
 }

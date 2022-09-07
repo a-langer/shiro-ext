@@ -68,6 +68,7 @@ public class StaticServlet extends HttpServlet implements ISilent {
     public void setRootDir(String rootDir) {
         this.rootDir = rootDir;
     }
+
     private boolean showContent = false;
 
     public boolean isShowContent() {
@@ -214,7 +215,7 @@ public class StaticServlet extends HttpServlet implements ISilent {
             throws IllegalArgumentException {
 
         String pathInfo = getPath(request);
-        
+
         if (pathInfo == null || pathInfo.isEmpty()) {
             throw new IllegalArgumentException("Path is null");
         }

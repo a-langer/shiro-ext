@@ -25,7 +25,7 @@ public class ScriptProcessedFilterTest extends ScriptProcessed {
             config.addInitParameter(key.toString(), value.toString());
             context.addInitParameter(key.toString(), value.toString());
         });
-        
+
         filter = new ScriptProcessedFilter();
         filter.init(config);
     }

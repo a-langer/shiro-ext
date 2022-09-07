@@ -146,7 +146,8 @@ public class ScriptProcessedServlet extends HttpServlet {
                 value = new String(Files.readAllBytes(Paths.get(path)), StandardCharsets.UTF_8);
                 if (CLASS_SCRIPT.equals(key)) {
                     engine.getContext().setAttribute("__FILE__", path, ScriptContext.ENGINE_SCOPE);
-                    engine.getContext().setAttribute("__DIR__", path.substring(0, path.lastIndexOf("/")), ScriptContext.ENGINE_SCOPE);
+                    engine.getContext().setAttribute("__DIR__", path.substring(0, path.lastIndexOf("/")),
+                            ScriptContext.ENGINE_SCOPE);
                     engine.getContext().setAttribute(ScriptEngine.FILENAME, path, ScriptContext.ENGINE_SCOPE);
                     classScriptPath = path;
                 } else if (INIT_SCRIPT.equals(key)) {
