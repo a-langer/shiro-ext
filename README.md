@@ -1,9 +1,8 @@
 # Extension for Apache Shiro
 
-[![Build Status](https://travis-ci.org/a-langer/shiro-ext.svg?branch=master)](https://travis-ci.org/a-langer/shiro-ext)
-[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/a-langer/shiro-ext/blob/master/LICENSE)
-[![Maven JitPack](https://img.shields.io/github/tag/a-langer/shiro-ext.svg?label=maven)](https://jitpack.io/#a-langer/shiro-ext)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.a-langer/shiro-ext/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.a-langer/shiro-ext)
+[![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/a-langer/shiro-ext/blob/master/LICENSE "License of source code")
+[![JitPack](https://jitpack.io/v/a-langer/shiro-ext.svg)](https://jitpack.io/#a-langer/shiro-ext "Maven repository for builds from source code")
+[![Maven](https://maven-badges.herokuapp.com/maven-central/com.github.a-langer/shiro-ext/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.a-langer/shiro-ext "Maven repository for stable builds")
 
 This project implement extension for security framework [Apache Shiro][1].
 
