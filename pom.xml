@@ -190,6 +190,7 @@
                                 cacheManager    = org.apache.shiro.cache.MemoryConstrainedCacheManager
                                 rememberMe      = org.apache.shiro.web.mgt.CookieRememberMeManager
                                 realmAuthorizer = com.github.alanger.shiroext.authz.AssignedRealmAuthorizer
+                                permissionResolver = com.github.alanger.shiroext.authz.permission.AntPermissionResolver
 
                                 securityManager = org.apache.shiro.web.mgt.DefaultWebSecurityManager
                                 securityManager.sessionManager = $sessionManager
@@ -199,6 +200,10 @@
                                 securityManager.rememberMeManager = $rememberMe
                                 securityManager.authorizer = $realmAuthorizer
                                 securityManager.realms = $iniRealm
+
+                                securityManager.authorizer.permissionResolver = $permissionResolver
+                                realmAuthorizer.permissionResolver = $permissionResolver
+                                iniRealm.permissionResolver = $permissionResolver
 
                                 ## [filters]
                                 authc      = com.github.alanger.shiroext.web.FormAuthcFilter
@@ -238,7 +243,7 @@
 
                                 [roles]
                                 admin = *
-                                user = app:*
+                                user = ap*:rea?,wri*
 
                                 [urls]
                                 /basic     = basic
@@ -252,8 +257,8 @@
                                 /roles     = basic, roles[admin,user]
                                 /role      = basic, role[admin,user]
                                 /permsOnly = perms[adm,app]
-                                /perms     = basic, perms[adm,app]
-                                /perm      = basic, perm[adm,app]
+                                /perms     = basic, perms[adm,app:read,write]
+                                /perm      = basic, perm[adm,app:read,write]
                                 /**        = authc
                                 </config>
                             </systemPropertyVariables>
@@ -264,6 +269,7 @@
                                 <include>**/LogoutAuthcFilterTest.java</include>
                                 <include>**/RolesAuthzFilterTest.java</include>
                                 <include>**/PermissionsAuthzFilterTest.java</include>
+                                <include>**/AntPermissionTest.java</include>
                             </includes>
                         </configuration>
                     </execution>
