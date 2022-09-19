@@ -1,6 +1,7 @@
 package com.github.alanger.shiroext.realm.pac4j;
 
 import static com.github.alanger.shiroext.realm.RealmUtils.asList;
+import static com.github.alanger.shiroext.realm.RealmUtils.filterBlackOrWhite;
 
 import io.buji.pac4j.realm.Pac4jRealm;
 import io.buji.pac4j.token.Pac4jToken;
@@ -18,45 +19,23 @@ import java.util.*;
 
 import com.github.alanger.shiroext.realm.ICommonPermission;
 import com.github.alanger.shiroext.realm.ICommonRole;
+import com.github.alanger.shiroext.realm.IFilterPermission;
+import com.github.alanger.shiroext.realm.IFilterRole;
 import com.github.alanger.shiroext.realm.IPrincipalName;
 import com.github.alanger.shiroext.realm.IUserPrefix;
 
 // See https://github.com/bujiio/buji-pac4j/blob/master/src/main/java/io/buji/pac4j/realm/Pac4jRealm.java
-public class Pac4jRealmName extends Pac4jRealm implements ICommonPermission, ICommonRole, IUserPrefix, IPrincipalName {
+public class Pac4jRealmName extends Pac4jRealm
+        implements ICommonPermission, ICommonRole, IUserPrefix, IPrincipalName, IFilterRole, IFilterPermission {
 
     private String commonRole = null;
     private String commonPermission = null;
     private String userPrefix = "";
 
-    @Override
-    public String getCommonRole() {
-        return commonRole;
-    }
-
-    @Override
-    public void setCommonRole(String commonRole) {
-        this.commonRole = commonRole;
-    }
-
-    @Override
-    public String getCommonPermission() {
-        return commonPermission;
-    }
-
-    @Override
-    public void setCommonPermission(String commonPermission) {
-        this.commonPermission = commonPermission;
-    }
-
-    @Override
-    public String getUserPrefix() {
-        return userPrefix;
-    }
-
-    @Override
-    public void setUserPrefix(String userPrefix) {
-        this.userPrefix = userPrefix;
-    }
+    private String roleWhiteList;
+    private String roleBlackList;
+    private String permissionWhiteList;
+    private String permissionBlackList;
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(final AuthenticationToken authenticationToken)
@@ -95,8 +74,80 @@ public class Pac4jRealmName extends Pac4jRealm implements ICommonPermission, ICo
         }
 
         final SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
+        filterBlackOrWhite(roles, roleWhiteList, roleBlackList);
         simpleAuthorizationInfo.addRoles(roles);
+        filterBlackOrWhite(permissions, permissionWhiteList, permissionBlackList);
         simpleAuthorizationInfo.addStringPermissions(permissions);
         return simpleAuthorizationInfo;
+    }
+
+    @Override
+    public String getCommonRole() {
+        return commonRole;
+    }
+
+    @Override
+    public void setCommonRole(String commonRole) {
+        this.commonRole = commonRole;
+    }
+
+    @Override
+    public String getCommonPermission() {
+        return commonPermission;
+    }
+
+    @Override
+    public void setCommonPermission(String commonPermission) {
+        this.commonPermission = commonPermission;
+    }
+
+    @Override
+    public String getUserPrefix() {
+        return userPrefix;
+    }
+
+    @Override
+    public void setUserPrefix(String userPrefix) {
+        this.userPrefix = userPrefix;
+    }
+
+    @Override
+    public String getRoleWhiteList() {
+        return roleWhiteList;
+    }
+
+    @Override
+    public void setRoleWhiteList(String roleWhiteList) {
+        this.roleWhiteList = roleWhiteList;
+    }
+
+    @Override
+    public String getRoleBlackList() {
+        return roleBlackList;
+    }
+
+    @Override
+    public void setRoleBlackList(String roleBlackList) {
+        this.roleBlackList = roleBlackList;
+    }
+
+    @Override
+    public String getPermissionWhiteList() {
+        return permissionWhiteList;
+    }
+
+    @Override
+    public void setPermissionWhiteList(String permissionWhiteList) {
+        this.permissionWhiteList = permissionWhiteList;
+    }
+
+    @Override
+    public String getPermissionBlackList() {
+        return permissionBlackList;
+    }
+
+    @Override
+    public void setPermissionBlackList(String permissionBlackList) {
+        this.permissionBlackList = permissionBlackList;
     }
 }

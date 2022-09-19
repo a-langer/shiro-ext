@@ -2,6 +2,8 @@ package com.github.alanger.shiroext.realm.activedirectory;
 
 import static java.text.MessageFormat.format;
 import static com.github.alanger.shiroext.realm.RealmUtils.asList;
+import static com.github.alanger.shiroext.realm.RealmUtils.filterBlackOrWhite;
+import static com.github.alanger.shiroext.realm.RealmUtils.isBlackOrWhite;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +31,7 @@ import javax.naming.ldap.LdapContext;
 import com.github.alanger.shiroext.realm.IAttributeProvider;
 import com.github.alanger.shiroext.realm.ICommonPermission;
 import com.github.alanger.shiroext.realm.ICommonRole;
+import com.github.alanger.shiroext.realm.IFilterRole;
 import com.github.alanger.shiroext.realm.INamed;
 import com.github.alanger.shiroext.realm.IUserPrefix;
 
@@ -49,7 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ActiveDirectoryRealm extends AbstractLdapRealm
-        implements IAttributeProvider, ICommonPermission, ICommonRole, IUserPrefix, INamed {
+        implements IAttributeProvider, ICommonPermission, ICommonRole, IUserPrefix, IFilterRole, INamed {
 
     private static Logger log = LoggerFactory.getLogger(ActiveDirectoryRealm.class);
 
@@ -280,32 +283,26 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm
 
     private String roleWhiteList;
 
+    @Override
     public String getRoleWhiteList() {
         return roleWhiteList;
     }
 
+    @Override
     public void setRoleWhiteList(String roleWhiteList) {
         this.roleWhiteList = roleWhiteList;
     }
 
     private String roleBlackList;
 
+    @Override
     public String getRoleBlackList() {
         return roleBlackList;
     }
 
+    @Override
     public void setRoleBlackList(String roleBlackList) {
         this.roleBlackList = roleBlackList;
-    }
-
-    private boolean isRoleBlackOrWhite(String roleName) {
-        if (roleWhiteList != null) {
-            return roleName.matches(roleWhiteList);
-        }
-        if (roleBlackList != null) {
-            return !roleName.matches(roleBlackList);
-        }
-        return true;
     }
 
     private String userWhiteList;
@@ -328,25 +325,15 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm
         this.userBlackList = userBlackList;
     }
 
-    private boolean isUserBlackOrWhite(String userName) {
-        if (userWhiteList != null) {
-            return userName.matches(userWhiteList);
-        }
-        if (userBlackList != null) {
-            return !userName.matches(userBlackList);
-        }
-        return true;
-    }
-
     private boolean isValidPrincipalName(String userPrincipalName) {
         if (userPrincipalName != null) {
             if (StringUtils.hasLength(userPrincipalName) && userPrincipalName.contains("@")) {
                 String userPrincipalWithoutDomain = userPrincipalName.split("@")[0].trim();
                 if (StringUtils.hasLength(userPrincipalWithoutDomain)) {
-                    return isUserBlackOrWhite(userPrincipalWithoutDomain);
+                    return isBlackOrWhite(userPrincipalWithoutDomain, userWhiteList, userBlackList);
                 }
             } else if (StringUtils.hasLength(userPrincipalName)) {
-                return isUserBlackOrWhite(userPrincipalName);
+                return isBlackOrWhite(userPrincipalName, userWhiteList, userBlackList);
             }
         }
         return false;
@@ -549,15 +536,11 @@ public class ActiveDirectoryRealm extends AbstractLdapRealm
 
             // Filter roles by black or white list
             if (roleBlackList != null || roleWhiteList != null) {
-                filterRoleBlackOrWhite(rolesForGroups);
+                filterBlackOrWhite(rolesForGroups, roleWhiteList, roleBlackList);
             }
         }
 
         return rolesForGroups;
-    }
-
-    protected void filterRoleBlackOrWhite(Collection<String> roleNames) {
-        roleNames.removeIf(g -> !isRoleBlackOrWhite(g));
     }
 
     protected NamingEnumeration<SearchResult> search(DirContext context, String searchBase, String searchFilter,

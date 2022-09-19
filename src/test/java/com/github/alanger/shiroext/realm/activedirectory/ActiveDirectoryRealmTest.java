@@ -1,5 +1,6 @@
 package com.github.alanger.shiroext.realm.activedirectory;
 
+import static com.github.alanger.shiroext.realm.RealmUtils.filterBlackOrWhite;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -174,14 +175,14 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
         Collection<String> roles = new LinkedHashSet<>(r);
 
         setRoleBlackList(GROUP + "|other_role1");
-        filterRoleBlackOrWhite(roles);
+        filterBlackOrWhite(roles, getRoleWhiteList(), getRoleBlackList());
         assertFalse(roles.isEmpty());
         assertTrue(roles.contains(COMMON_ROLE));
         assertFalse(GROUP != null ? roles.contains(GROUP) : false);
 
         roles = new LinkedHashSet<>(r);
         setRoleBlackList("other_role1|other_role2");
-        filterRoleBlackOrWhite(roles);
+        filterBlackOrWhite(roles, getRoleWhiteList(), getRoleBlackList());
         assertFalse(roles.isEmpty());
         assertTrue(roles.contains(COMMON_ROLE));
         assertTrue(GROUP != null ? roles.contains(GROUP) : true);
@@ -189,14 +190,15 @@ public class ActiveDirectoryRealmTest extends ActiveDirectoryRealm {
 
         roles = new LinkedHashSet<>(r);
         setRoleWhiteList(GROUP + "|other_role1");
-        filterRoleBlackOrWhite(roles);
+        filterBlackOrWhite(roles, getRoleWhiteList(), getRoleBlackList());
         assertFalse(GROUP != null ? roles.isEmpty() : false);
         assertFalse(roles.contains(COMMON_ROLE));
         assertTrue(GROUP != null ? roles.contains(GROUP) : true);
 
         roles = new LinkedHashSet<>(r);
         setRoleWhiteList("other_role1|other_role2");
-        filterRoleBlackOrWhite(roles);
+
+        filterBlackOrWhite(roles, getRoleWhiteList(), getRoleBlackList());
         assertTrue(roles.isEmpty());
         assertFalse(roles.contains(COMMON_ROLE));
         assertFalse(GROUP != null ? roles.contains(GROUP) : false);
