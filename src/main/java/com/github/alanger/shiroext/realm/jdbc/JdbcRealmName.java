@@ -1,6 +1,7 @@
 package com.github.alanger.shiroext.realm.jdbc;
 
 import static com.github.alanger.shiroext.realm.RealmUtils.asList;
+import static com.github.alanger.shiroext.realm.RealmUtils.filterBlackOrWhite;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -9,6 +10,8 @@ import java.sql.SQLException;
 
 import com.github.alanger.shiroext.realm.ICommonPermission;
 import com.github.alanger.shiroext.realm.ICommonRole;
+import com.github.alanger.shiroext.realm.IFilterPermission;
+import com.github.alanger.shiroext.realm.IFilterRole;
 import com.github.alanger.shiroext.realm.IPrincipalName;
 
 import org.apache.shiro.authc.AuthenticationException;
@@ -23,61 +26,20 @@ import org.apache.shiro.util.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JdbcRealmName extends JdbcRealm implements ICommonPermission, ICommonRole, IPrincipalName {
+public class JdbcRealmName extends JdbcRealm
+        implements ICommonPermission, ICommonRole, IPrincipalName, IFilterRole, IFilterPermission {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected String commonRole = null;
     protected String commonPermission = null;
     protected String principalNameAttribute;
+    private String roleWhiteList;
+    private String roleBlackList;
+    private String permissionWhiteList;
+    private String permissionBlackList;
     protected String principalNameQuery;
     protected boolean skipIfNullAttribute = false;
-
-    @Override
-    public String getCommonRole() {
-        return commonRole;
-    }
-
-    @Override
-    public void setCommonRole(String commonRole) {
-        this.commonRole = commonRole;
-    }
-
-    @Override
-    public String getCommonPermission() {
-        return commonPermission;
-    }
-
-    @Override
-    public void setCommonPermission(String commonPermission) {
-        this.commonPermission = commonPermission;
-    }
-
-    @Override
-    public String getPrincipalNameAttribute() {
-        return principalNameAttribute;
-    }
-
-    @Override
-    public void setPrincipalNameAttribute(String principalNameAttribute) {
-        this.principalNameAttribute = principalNameAttribute;
-    }
-
-    public String getPrincipalNameQuery() {
-        return principalNameQuery;
-    }
-
-    public void setPrincipalNameQuery(String principalNameQuery) {
-        this.principalNameQuery = principalNameQuery;
-    }
-
-    public boolean isSkipIfNullAttribute() {
-        return skipIfNullAttribute;
-    }
-
-    public void setSkipIfNullAttribute(boolean skipIfNullAttribute) {
-        this.skipIfNullAttribute = skipIfNullAttribute;
-    }
 
     protected AuthenticationToken getAuthenticationToken(AuthenticationToken token, String nameAttribute)
             throws AuthenticationException {
@@ -152,8 +114,96 @@ public class JdbcRealmName extends JdbcRealm implements ICommonPermission, IComm
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         SimpleAuthorizationInfo info = (SimpleAuthorizationInfo) super.doGetAuthorizationInfo(principals);
         info.addRoles(asList(commonRole));
+        filterBlackOrWhite(info.getRoles(), roleWhiteList, roleBlackList);
         info.addStringPermissions(asList(commonPermission));
+        filterBlackOrWhite(info.getStringPermissions(), permissionWhiteList, permissionBlackList);
         return info;
+    }
+
+    @Override
+    public String getCommonRole() {
+        return commonRole;
+    }
+
+    @Override
+    public void setCommonRole(String commonRole) {
+        this.commonRole = commonRole;
+    }
+
+    @Override
+    public String getCommonPermission() {
+        return commonPermission;
+    }
+
+    @Override
+    public void setCommonPermission(String commonPermission) {
+        this.commonPermission = commonPermission;
+    }
+
+    @Override
+    public String getPrincipalNameAttribute() {
+        return principalNameAttribute;
+    }
+
+    @Override
+    public void setPrincipalNameAttribute(String principalNameAttribute) {
+        this.principalNameAttribute = principalNameAttribute;
+    }
+
+    @Override
+    public String getRoleWhiteList() {
+        return roleWhiteList;
+    }
+
+    @Override
+    public void setRoleWhiteList(String roleWhiteList) {
+        this.roleWhiteList = roleWhiteList;
+    }
+
+    @Override
+    public String getRoleBlackList() {
+        return roleBlackList;
+    }
+
+    @Override
+    public void setRoleBlackList(String roleBlackList) {
+        this.roleBlackList = roleBlackList;
+    }
+
+    @Override
+    public String getPermissionWhiteList() {
+        return permissionWhiteList;
+    }
+
+    @Override
+    public void setPermissionWhiteList(String permissionWhiteList) {
+        this.permissionWhiteList = permissionWhiteList;
+    }
+
+    @Override
+    public String getPermissionBlackList() {
+        return permissionBlackList;
+    }
+
+    @Override
+    public void setPermissionBlackList(String permissionBlackList) {
+        this.permissionBlackList = permissionBlackList;
+    }
+
+    public String getPrincipalNameQuery() {
+        return principalNameQuery;
+    }
+
+    public void setPrincipalNameQuery(String principalNameQuery) {
+        this.principalNameQuery = principalNameQuery;
+    }
+
+    public boolean isSkipIfNullAttribute() {
+        return skipIfNullAttribute;
+    }
+
+    public void setSkipIfNullAttribute(boolean skipIfNullAttribute) {
+        this.skipIfNullAttribute = skipIfNullAttribute;
     }
 
 }
