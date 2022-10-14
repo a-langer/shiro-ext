@@ -8,12 +8,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.github.alanger.shiroext.realm.ICommonPermission;
-import com.github.alanger.shiroext.realm.ICommonRole;
-import com.github.alanger.shiroext.realm.IFilterPermission;
-import com.github.alanger.shiroext.realm.IFilterRole;
-import com.github.alanger.shiroext.realm.IPrincipalName;
-
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -25,6 +19,12 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.JdbcUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.alanger.shiroext.realm.ICommonPermission;
+import com.github.alanger.shiroext.realm.ICommonRole;
+import com.github.alanger.shiroext.realm.IFilterPermission;
+import com.github.alanger.shiroext.realm.IFilterRole;
+import com.github.alanger.shiroext.realm.IPrincipalName;
 
 public class JdbcRealmName extends JdbcRealm
         implements ICommonPermission, ICommonRole, IPrincipalName, IFilterRole, IFilterPermission {
@@ -40,10 +40,16 @@ public class JdbcRealmName extends JdbcRealm
     private String permissionBlackList;
     protected String principalNameQuery;
     protected boolean skipIfNullAttribute = false;
+    protected boolean findByPassword = false;
 
     protected AuthenticationToken getAuthenticationToken(AuthenticationToken token, String nameAttribute)
             throws AuthenticationException {
-        UsernamePasswordToken upToken = (UsernamePasswordToken) token;
+        UsernamePasswordToken upToken;
+        if (token instanceof UsernamePasswordToken) {
+            upToken = (UsernamePasswordToken) token;
+        } else {
+            upToken = new UsernamePasswordToken(token.getPrincipal().toString(), (char[]) token.getCredentials());
+        }
         String username = upToken.getUsername();
 
         Connection conn = null;
@@ -55,6 +61,8 @@ public class JdbcRealmName extends JdbcRealm
 
             ps = conn.prepareStatement(principalNameQuery);
             ps.setString(1, username);
+            if (findByPassword)
+                ps.setString(2, upToken.getCredentials().toString());
 
             rs = ps.executeQuery();
 
@@ -95,6 +103,7 @@ public class JdbcRealmName extends JdbcRealm
         return upToken;
     }
 
+    @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         String nameAttribute = null;
         if (token instanceof IPrincipalName) {
@@ -106,6 +115,10 @@ public class JdbcRealmName extends JdbcRealm
 
         if (principalNameQuery != null && !(skipIfNullAttribute && nameAttribute == null)) {
             token = getAuthenticationToken(token, nameAttribute);
+        }
+
+        if (!(token instanceof UsernamePasswordToken)) {
+            token = new UsernamePasswordToken(token.getPrincipal().toString(), (char[]) token.getCredentials());
         }
         return super.doGetAuthenticationInfo(token);
     }
@@ -204,6 +217,14 @@ public class JdbcRealmName extends JdbcRealm
 
     public void setSkipIfNullAttribute(boolean skipIfNullAttribute) {
         this.skipIfNullAttribute = skipIfNullAttribute;
+    }
+
+    public boolean isFindByPassword() {
+        return findByPassword;
+    }
+
+    public void setFindByPassword(boolean findByPassword) {
+        this.findByPassword = findByPassword;
     }
 
 }
