@@ -64,7 +64,7 @@
         <nexus.staging.maven.plugin.version>1.6.8</nexus.staging.maven.plugin.version>
         <maven.gpg.plugin.version>3.0.1</maven.gpg.plugin.version>
         <maven.assembly.plugin.version>3.3.0</maven.assembly.plugin.version>
-        <shiro.version>1.8.0</shiro.version>
+        <shiro.version>1.13.0</shiro.version>
         <commons.logging.version>1.2</commons.logging.version>
         <buji.pac4j.version>4.1.1</buji.pac4j.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
